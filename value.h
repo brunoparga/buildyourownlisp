@@ -2,27 +2,33 @@
 #define lispy_value_h
 
 /* Create Enumeration of possible Value types */
-typedef enum { NUMBER, ERROR } ValueType;
+typedef enum { NUMBER, SYMBOL, SEXPR, ERROR } ValueType;
 
-/* Create Enumeration of possible error types */
-typedef enum {
-  ERROR_DIVISION_BY_ZERO,     // Division by zero.
-  ERROR_INVALID_OPERAND,      // Invalid number (e.g. non-integer modulus).
-  ERROR_NUMBER_OUT_OF_BOUNDS, // Number out of bounds.
-  ERROR_UNKNOWN_OPERATOR,     // Unknown operator.
-} Error;
+typedef char *Symbol;
+typedef char *Error;
+
+/* Declare new S-expression struct */
+typedef struct Sexpr {
+  int count;
+  struct Value **cell;
+} Sexpr;
 
 /* Declare new Value struct */
 typedef struct Value {
   ValueType type;
   union {
     double number;
+    Symbol symbol;
     Error error;
+    struct Sexpr sexpr;
   };
 } Value;
 
-Value make_number(double number);
-Value make_error(Error error);
-void print_value(Value value);
+Value *make_number(double number);
+Value *make_symbol(Symbol symbol);
+Value *make_sexpr(void);
+Value *make_error(Error error);
+void print_value(Value *value);
+void free_value(Value *value);
 
 #endif

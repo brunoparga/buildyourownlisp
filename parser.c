@@ -2,6 +2,7 @@
 
 #include "parser.h"
 #include "eval.h"
+#include "sexpressizer.h"
 #include "value.h"
 
 static char *read_grammar(const char *path) {
@@ -34,16 +35,17 @@ static char *read_grammar(const char *path) {
 }
 
 Parser *create_parser() {
-  Parser *parser;
+  Parser *parser = malloc(sizeof(Parser));
   parser->language = read_grammar(GRAMMAR_FILE);
 
   if (parser->language == NULL) {
-    printf("Error: could not read grammar file.");
+    printf("could not read grammar file.");
     return NULL;
   }
 
   parser->Number = mpc_new("number");
-  parser->Operator = mpc_new("operator");
+  parser->Symbol = mpc_new("symbol");
+  parser->Sexpr = mpc_new("sexpr");
   parser->Expr = mpc_new("expr");
   parser->Lispy = mpc_new("lispy");
 
@@ -52,15 +54,17 @@ Parser *create_parser() {
 
 void parse(Parser *parser, char *input) {
   /* Define parsers with the following Language */
-  mpca_lang(MPCA_LANG_DEFAULT, parser->language, parser->Number,
-            parser->Operator, parser->Expr, parser->Lispy);
+  mpca_lang(MPCA_LANG_DEFAULT, parser->language, parser->Number, parser->Symbol, parser->Sexpr,
+            parser->Expr, parser->Lispy);
 
   /* Attempt to parse the user input */
   mpc_result_t result;
   if (mpc_parse("<stdin>", input, parser->Lispy, &result)) {
     /* On success print the result */
-    Value value = eval(result.output);
+    Value *value = sexpressize(result.output);
+    // Value value = eval(result.output);
     print_value(value);
+    free_value(value);
     mpc_ast_delete(result.output);
   } else {
     /* Otherwise print the error */
@@ -71,5 +75,6 @@ void parse(Parser *parser, char *input) {
 
 void cleanup_parser(Parser *parser) {
   /* Undefine and Delete our Parsers */
-  mpc_cleanup(4, parser->Number, parser->Operator, parser->Expr, parser->Lispy);
+  mpc_cleanup(5, parser->Number, parser->Symbol, parser->Sexpr, parser->Expr, parser->Lispy);
+  free(parser);
 }
