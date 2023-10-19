@@ -55,7 +55,7 @@ Parser *create_parser() {
 Value *parse(Parser *parser, char *input) {
   /* Define parsers for our Language */
   mpca_lang(MPCA_LANG_DEFAULT, parser->language, parser->Number, parser->Symbol,
-            parser->Sexpr, parser->Expr, parser->Lispy);
+            parser->Sexpr, parser->Qexpr, parser->Expr, parser->Lispy);
 
   /* Attempt to parse the user input */
   mpc_result_t result;

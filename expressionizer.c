@@ -1,6 +1,4 @@
 #include "expressionizer.h"
-#include <stdio.h>
-#include <string.h>
 
 static Value *append_value(Value *list, Value *new_value) {
   list->sexpr.count++;
@@ -17,18 +15,18 @@ static Value *read_number(mpc_ast_t *t) {
                          : make_number(number);
 }
 
-static int str_match(char* string, int count, ...) {
-  va_list(candidates);
-  int result = 0;
-  va_start(candidates, count);
-  for (int index = 0; index < count; index++) {
-    if (strcmp(string, va_arg(candidates, char*)) == 0) {
-      result = 1;
-    }
-  }
-  va_end(candidates);
-  return result;
-}
+// static int str_match(char* string, int count, ...) {
+//   va_list(candidates);
+//   int result = 0;
+//   va_start(candidates, count);
+//   for (int index = 0; index < count; index++) {
+//     if (strcmp(string, va_arg(candidates, char*)) == 0) {
+//       result = 1;
+//     }
+//   }
+//   va_end(candidates);
+//   return result;
+// }
 
 Value *expressionize(mpc_ast_t *ast) {
 #define HAS_TAG(some_tag) (strstr(ast->tag, some_tag))
@@ -42,17 +40,24 @@ Value *expressionize(mpc_ast_t *ast) {
 
   /* If root (">") or sexpr then create empty list */
   Value *value = NULL;
-  if (strcmp(ast->tag, ">") == 0 || HAS_TAG("sexpr") || HAS_TAG("qexpr")) {
+  if (strcmp(ast->tag, ">") == 0 || HAS_TAG("sexpr")) {
     value = make_sexpr();
+  }
+
+  if (HAS_TAG("qexpr")) {
+    value = make_qexpr();
   }
 #undef HAS_TAG
 
   /* Fill the list with any valid expression contained within */
   for (int index = 0; index < ast->children_num; index++) {
     if (strcmp(ast->children[index]->tag, "regex") == 0 ||
-        str_match(ast->children[index]->contents, 4, "(", ")", "{", "}")) {
-        continue;
-      }
+        strcmp(ast->children[index]->contents, "(") == 0 ||
+        strcmp(ast->children[index]->contents, ")") == 0 ||
+        strcmp(ast->children[index]->contents, "{") == 0 ||
+        strcmp(ast->children[index]->contents, "}") == 0) {
+      continue;
+    }
     value = append_value(value, expressionize(ast->children[index]));
   }
 

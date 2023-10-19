@@ -73,22 +73,27 @@ void delete_value(Value *value) {
 
 /* Return the count of values in the cell of an S-expression */
 int count(Value *sexpr_value) {
-  if (sexpr_value->type != SEXPR) {
-    printf("Error: Value is not an S-expression and doesn't have a count.");
+  switch (sexpr_value->type) {
+  case QEXPR:
+  case SEXPR:
+    return sexpr_value->sexpr.count;
+  default:
+    printf(
+        "Error: Value is not an S- or Q-expression and doesn't have a count.");
     return -1;
   }
-
-  return sexpr_value->sexpr.count;
 }
 
-/* Return the element at the given index, contained in an S-expression */
+/* Return the element at the given index, contained in an S- or Q-expression */
 Value *element_at(Value *sexpr_value, int index) {
-  if (sexpr_value->type != SEXPR) {
+  switch (sexpr_value->type) {
+  case QEXPR:
+  case SEXPR:
+    return sexpr_value->sexpr.cell[index];
+  default:
     return make_error(
-        "cannot get element from a Value that is not an S-expressions.");
+        "cannot get element from a Value that is not an S- or Q-expression.");
   }
-
-  return sexpr_value->sexpr.cell[index];
 }
 
 /* Print a Value */
