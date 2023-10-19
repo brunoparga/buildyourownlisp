@@ -130,7 +130,7 @@ Value *pop_value(Value *value, int index) {
   Value *popped = element_at(value, index);
 
   /* Shift memory after the popped item over the top*/
-  memmove(element_at(value, index), element_at(value, index + 1),
+  memmove(&value->sexpr.cell[index], &value->sexpr.cell[index + 1],
           sizeof(Value *) * (count(value) - index - 1));
 
   /* Decrement the size of the list */
@@ -138,7 +138,7 @@ Value *pop_value(Value *value, int index) {
 
   /* Reallocate the memory used */
   value->sexpr.cell =
-      realloc(value->sexpr.cell, sizeof(Value *) * value->sexpr.count);
+      realloc(value->sexpr.cell, sizeof(Value *) * count(value));
   return popped;
 }
 

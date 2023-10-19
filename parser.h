@@ -3,6 +3,7 @@
 
 #include "lib/mpc.h"
 
+#include "eval.h"
 #include "sexpressizer.h"
 #include "value.h"
 

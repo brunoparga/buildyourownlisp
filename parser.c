@@ -62,7 +62,7 @@ Value *parse(Parser *parser, char *input) {
 
   if (mpc_parse("<stdin>", input, parser->Lispy, &result)) {
     /* On success return the result */
-    value = sexpressize(result.output);
+    value = evaluate(sexpressize(result.output));
     mpc_ast_delete(result.output);
   } else {
     /* Otherwise return the error */

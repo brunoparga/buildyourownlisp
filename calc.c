@@ -67,7 +67,7 @@ Value *compute(Value *value, Symbol *op) {
       result->number = pow(result->number, operand->number);
     } else if (IS_OP("min")) {
       result->number = fmin(result->number, operand->number);
-    } else if (IS_OP("maresult")) {
+    } else if (IS_OP("max")) {
       result->number = fmax(result->number, operand->number);
     }
 
