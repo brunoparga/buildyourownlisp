@@ -26,6 +26,15 @@ Value *make_sexpr() {
   return value;
 }
 
+/* Create a new Q-expression Value */
+Value *make_qexpr() {
+  Value *value = malloc(sizeof(Value));
+  value->type = QEXPR;
+  value->sexpr.count = 0;
+  value->sexpr.cell = NULL;
+  return value;
+}
+
 /* Create a new error Value */
 Value *make_error(Error error) {
   Value *value = malloc(sizeof(Value));
@@ -46,6 +55,7 @@ void delete_value(Value *value) {
     break;
   /* For Sexpr delete all the elements inside */
   case SEXPR:
+  case QEXPR:
     for (int index = 0; index < count(value); index++) {
       delete_value(element_at(value, index));
     }
@@ -113,6 +123,9 @@ static void print_value_no_newline(Value *value) {
     break;
   case SEXPR:
     print_expression(value, '(', ')');
+    break;
+  case QEXPR:
+    print_expression(value, '{', '}');
     break;
   case ERROR:
     printf("Error: %s", value->error);

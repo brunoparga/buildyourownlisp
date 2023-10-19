@@ -7,7 +7,7 @@
 #include <string.h>
 
 /* Create Enumeration of possible Value types */
-typedef enum { NUMBER, SYMBOL, SEXPR, ERROR } ValueType;
+typedef enum { NUMBER, SYMBOL, SEXPR, QEXPR, ERROR } ValueType;
 
 typedef char *Symbol;
 typedef char *Error;
@@ -33,6 +33,7 @@ typedef struct Value {
 Value *make_number(double number);
 Value *make_symbol(Symbol symbol);
 Value *make_sexpr(void);
+Value *make_qexpr(void);
 Value *make_error(Error error);
 void delete_value(Value *value);
 

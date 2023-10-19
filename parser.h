@@ -4,7 +4,7 @@
 #include "lib/mpc.h"
 
 #include "eval.h"
-#include "sexpressizer.h"
+#include "expressionizer.h"
 #include "value.h"
 
 #define GRAMMAR_FILE "/home/bruno/code/learn/buildyourownlisp/grammar.txt"
