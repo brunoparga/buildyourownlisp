@@ -16,11 +16,11 @@ Value *builtin_list(Value *value) {
 
 Value *builtin_head(Value *value) {
   /* Check error conditions */
-  LIST_ASSERT(value, count(value) != 1,
+  LIST_ASSERT(value, count(value) == 1,
               "function 'head' passed too many arguments.")
-  LIST_ASSERT(value, !IS_QEXPR(element_at(value, 0)),
+  LIST_ASSERT(value, IS_QEXPR(element_at(value, 0)),
               "function 'head' passed incorrect types.")
-  LIST_ASSERT(value, count(element_at(value, 0)) == 0,
+  LIST_ASSERT(value, count(element_at(value, 0)) > 0,
               "function 'head' passed invalid empty Q-expression.")
 
   /* Otherwise take the first argument. */
@@ -36,11 +36,11 @@ Value *builtin_head(Value *value) {
 
 Value *builtin_tail(Value *value) {
   /* Check error conditions */
-  LIST_ASSERT(value, count(value) != 1,
+  LIST_ASSERT(value, count(value) == 1,
               "function 'tail' passed too many arguments.")
-  LIST_ASSERT(value, !IS_QEXPR(element_at(value, 0)),
+  LIST_ASSERT(value, IS_QEXPR(element_at(value, 0)),
               "function 'tail' passed incorrect types.")
-  LIST_ASSERT(value, count(element_at(value, 0)) == 0,
+  LIST_ASSERT(value, count(element_at(value, 0)) > 0,
               "function 'tail' passed invalid empty Q-expression.")
 
   /* Take first argument */
@@ -68,9 +68,9 @@ Value *builtin_join(Value *value) {
 }
 
 Value *builtin_eval(Value *value) {
-  LIST_ASSERT(value, count(value) != 1,
+  LIST_ASSERT(value, count(value) == 1,
               "function 'eval' passed too many arguments.")
-  LIST_ASSERT(value, !IS_QEXPR(element_at(value, 0)),
+  LIST_ASSERT(value, IS_QEXPR(element_at(value, 0)),
               "function 'eval' passed incorrect types.")
 
   Value *sexpr = take_value(value, 0);
