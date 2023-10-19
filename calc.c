@@ -7,7 +7,7 @@ static int is_integer(double x) {
   return difference > -epsilon && difference < epsilon;
 }
 
-void numeric_error(Value *x, Value *y, Error message) {
+void numeric_error(Value *x, Value *y, ErrorMsg message) {
   delete_value(x);
   delete_value(y);
   x = make_error(message);

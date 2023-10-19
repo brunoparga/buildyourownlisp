@@ -67,7 +67,7 @@ Value *parse(Parser *parser, char *input) {
     mpc_ast_delete(result.output);
   } else {
     /* Otherwise return the error */
-    Error error = mpc_err_string(result.error);
+    ErrorMsg error = mpc_err_string(result.error);
     value = make_error(error);
     mpc_err_delete(result.error);
   }

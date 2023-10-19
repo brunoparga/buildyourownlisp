@@ -10,7 +10,7 @@
 typedef enum { NUMBER, SYMBOL, SEXPR, QEXPR, ERROR } ValueType;
 
 typedef char *Symbol;
-typedef char *Error;
+typedef char *ErrorMsg;
 
 /* Declare new S-expression struct */
 typedef struct Sexpr {
@@ -24,7 +24,7 @@ typedef struct Value {
   union {
     double number;
     Symbol symbol;
-    Error error;
+    ErrorMsg error;
     struct Sexpr sexpr;
   };
 } Value;
@@ -34,7 +34,7 @@ Value *make_number(double number);
 Value *make_symbol(Symbol symbol);
 Value *make_sexpr(void);
 Value *make_qexpr(void);
-Value *make_error(Error error);
+Value *make_error(ErrorMsg error);
 void delete_value(Value *value);
 
 /* Utility functions for working with Values */

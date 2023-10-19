@@ -36,7 +36,7 @@ Value *make_qexpr() {
 }
 
 /* Create a new error Value */
-Value *make_error(Error error) {
+Value *make_error(ErrorMsg error) {
   Value *value = malloc(sizeof(Value));
   value->type = ERROR;
   value->error = malloc(strlen(error) + 1);
@@ -49,7 +49,7 @@ void delete_value(Value *value) {
   /* Do nothing special for number type */
   case NUMBER:
     break;
-  /* For Symbol (and Error, below), free the string data */
+  /* For Symbol (and ErrorMsg, below), free the string data */
   case SYMBOL:
     free(value->symbol);
     break;
