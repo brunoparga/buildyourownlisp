@@ -16,7 +16,7 @@ void numeric_error(Value *x, Value *y, ErrorMsg message) {
 Value *compute(Value *value, Symbol *op) {
   /* Ensure all arguments are numbers */
   for (int index = 0; index < count(value); index++) {
-    if (element_at(value, index)->type != NUMBER) {
+    if (!IS_NUMBER(element_at(value, index))) {
       delete_value(value);
       return make_error(
           "can only operate on numbers. Found a value that is not a number.");

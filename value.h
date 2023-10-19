@@ -29,6 +29,13 @@ typedef struct Value {
   };
 } Value;
 
+/* Macros that assert the type of a Value */
+#define IS_NUMBER(value) (value->type == NUMBER)
+#define IS_SYMBOL(value) (value->type == SYMBOL)
+#define IS_SEXPR(value) (value->type == SEXPR)
+#define IS_QEXPR(value) (value->type == QEXPR)
+#define IS_ERROR(value) (value->type == ERROR)
+
 /* Value constructors and destructor */
 Value *make_number(double number);
 Value *make_symbol(Symbol symbol);
@@ -43,5 +50,6 @@ Value *element_at(Value *sexpr_value, int index);
 void print_value(Value *value);
 Value *pop_value(Value *value, int index);
 Value *take_value(Value *value, int index);
+Value *append_value(Value *list, Value *new_value);
 
 #endif

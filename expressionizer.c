@@ -1,13 +1,5 @@
 #include "expressionizer.h"
 
-static Value *append_value(Value *list, Value *new_value) {
-  list->sexpr.count++;
-  list->sexpr.cell = realloc(list->sexpr.cell, sizeof(Value *) * count(list));
-
-  list->sexpr.cell[count(list) - 1] = new_value;
-  return list;
-}
-
 static Value *read_number(mpc_ast_t *t) {
   errno = 0;
   double number = strtod(t->contents, NULL);

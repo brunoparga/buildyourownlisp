@@ -4,7 +4,7 @@ static Value *evaluate_sexpr(Value *value) {
   /* Evaluate children */
   for (int index = 0; index < count(value); index++) {
     value->sexpr.cell[index] = evaluate(element_at(value, index));
-    if (element_at(value, index)->type == ERROR) {
+    if (IS_ERROR(element_at(value, index))) {
       return take_value(value, index);
     }
   }
@@ -20,7 +20,7 @@ static Value *evaluate_sexpr(Value *value) {
 
   /* Ensure first element is a Symbol */
   Value *first = pop_value(value, 0);
-  if (first->type != SYMBOL) {
+  if (!IS_SYMBOL(first)) {
     delete_value(first);
     delete_value(value);
     return make_error("S-expression does not start with a symbol.");
@@ -34,7 +34,7 @@ static Value *evaluate_sexpr(Value *value) {
 
 Value *evaluate(Value *value) {
   /* Evaluate S-expressions */
-  if (value->type == SEXPR) {
+  if (IS_SEXPR(value)) {
     return evaluate_sexpr(value);
   }
 

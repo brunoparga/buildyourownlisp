@@ -165,3 +165,11 @@ Value *take_value(Value *value, int index) {
   delete_value(value);
   return popped;
 }
+
+Value *append_value(Value *list, Value *new_value) {
+  list->sexpr.count++;
+  list->sexpr.cell = realloc(list->sexpr.cell, sizeof(Value *) * count(list));
+
+  list->sexpr.cell[count(list) - 1] = new_value;
+  return list;
+}
