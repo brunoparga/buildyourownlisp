@@ -1,8 +1,7 @@
 #include "calc.h"
-#include "value.h"
 
 static int is_integer(double x) {
-  double epsilon = 0.000001;  // Enough for e^pi - pi != 20
+  double epsilon = 0.000001; // Enough for e^pi - pi != 20
   double difference = round(x) - x;
   return difference > -epsilon && difference < epsilon;
 }
@@ -65,10 +64,10 @@ Value *compute(Value *value, Symbol *op) {
       }
     } else if (IS_OP("^")) {
       result->number = pow(result->number, operand->number);
-    } else if (IS_OP("min")) {
-      result->number = fmin(result->number, operand->number);
     } else if (IS_OP("max")) {
       result->number = fmax(result->number, operand->number);
+    } else if (IS_OP("min")) {
+      result->number = fmin(result->number, operand->number);
     }
 
     delete_value(operand);
