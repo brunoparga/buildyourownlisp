@@ -1,53 +1,43 @@
 #include "eval.h"
 
-/* Check for errors and if there are none dispatch for calculation */
-Value eval_op(Value x, char *op, Value y) {
-  /* If either value is an error return it */
-  if (x.type == ERROR) {
-    return x;
-  }
-  if (y.type == ERROR) {
-    return y;
-  }
-  if (strcmp(op, "/") == 0 && y.number == 0) {
-    return make_error(ERROR_DIVISION_BY_ZERO);
-  }
-  if (strcmp(op, "%") == 0) {
-    if (!isInt(x) || !isInt(y)) {
-      return make_error(ERROR_INVALID_OPERAND);
-    } else if (y.number == 0) {
-      return make_error(ERROR_DIVISION_BY_ZERO);
+static Value *evaluate_sexpr(Value *value) {
+  /* Evaluate children */
+  for (int index = 0; index < count(value); index++) {
+    value->sexpr.cell[index] = evaluate(element_at(value, index));
+    if (element_at(value, index)->type == ERROR) {
+      return take_value(value, index);
     }
   }
 
-  return compute(x.number, op, y.number);
+  /* Empty expression, () */
+  if (count(value) == 0) {
+    return value;
+  }
+
+  if (count(value) == 1) {
+    return take_value(value, 0);
+  }
+
+  /* Ensure first element is a Symbol */
+  Value *first = pop_value(value, 0);
+  if (first->type != SYMBOL) {
+    delete_value(first);
+    delete_value(value);
+    return make_error("S-expression does not start with a symbol.");
+  }
+
+  /* Pass operator for calculation */
+  Value *result = compute(value, &first->symbol);
+  delete_value(first);
+  return result;
 }
 
-Value eval(mpc_ast_t *t) {
-  /* If the AST node is a number return it directly */
-  if (strstr(t->tag, "number")) {
-    errno = 0;
-    double number = strtod(t->contents, NULL);
-    return errno == ERANGE ? make_error(ERROR_NUMBER_OUT_OF_BOUNDS)
-                           : make_number(number);
+Value *evaluate(Value *value) {
+  /* Evaluate S-expressions */
+  if (value->type == SEXPR) {
+    return evaluate_sexpr(value);
   }
 
-  /* The operator is always the second child */
-  char *op = t->children[1]->contents;
-
-  /* We store the third child in `x` */
-  Value x = eval(t->children[2]);
-
-  /* Iterate the remaining children and combine */
-  int i = 3;
-  for (int i = 3; strstr(t->children[i]->tag, "expr"); i++) {
-    x = eval_op(x, op, eval(t->children[i]));
-  }
-
-  /* Check for unary minus */
-  if (strcmp(op, "-") == 0 && i == 3) {
-    return make_number(-x.number);
-  }
-
-  return x;
+  /* All other Value types remain the same */
+  return value;
 }

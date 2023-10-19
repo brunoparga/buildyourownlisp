@@ -3,6 +3,9 @@
 
 #include "lib/mpc.h"
 
+#include "sexpressizer.h"
+#include "value.h"
+
 #define GRAMMAR_FILE "/home/bruno/code/learn/buildyourownlisp/grammar.txt"
 
 typedef struct Parser {

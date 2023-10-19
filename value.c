@@ -1,8 +1,3 @@
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "value.h"
 
 /* Create a new number Value */
@@ -40,6 +35,32 @@ Value *make_error(Error error) {
   return value;
 }
 
+void delete_value(Value *value) {
+  switch (value->type) {
+  /* Do nothing special for number type */
+  case NUMBER:
+    break;
+  /* For Symbol (and Error, below), free the string data */
+  case SYMBOL:
+    free(value->symbol);
+    break;
+  /* For Sexpr delete all the elements inside */
+  case SEXPR:
+    for (int index = 0; index < count(value); index++) {
+      delete_value(element_at(value, index));
+    }
+    /* Also free the memory allocated to contain the pointers */
+    free(value->sexpr.cell);
+    break;
+  case ERROR:
+    free(value->error);
+    break;
+  }
+
+  /* Free the memory allocated for the Value itself */
+  free(value);
+}
+
 /* Return the count of values in the cell of an S-expression */
 int count(Value *sexpr_value) {
   if (sexpr_value->type != SEXPR) {
@@ -63,7 +84,7 @@ Value *element_at(Value *sexpr_value, int index) {
 /* Print a Value */
 static void print_value_no_newline(Value *value);
 
-void print_expression(Value *value, char open, char close) {
+static void print_expression(Value *value, char open, char close) {
   putchar(open);
   for (int index = 0; index < count(value); index++) {
     /* Print Value contained within */
@@ -104,28 +125,25 @@ void print_value(Value *value) {
   putchar('\n');
 }
 
-void free_value(Value *value) {
-  switch (value->type) {
-  /* Do nothing special for number type */
-  case NUMBER:
-    break;
-  /* For Symbol (and Error, below), free the string data */
-  case SYMBOL:
-    free(value->symbol);
-    break;
-  /* For Sexpr delete all the elements inside */
-  case SEXPR:
-    for (int index = 0; index < count(value); index++) {
-      free_value(element_at(value, index));
-    }
-    /* Also free the memory allocated to contain the pointers */
-    free(value->sexpr.cell);
-    break;
-  case ERROR:
-    free(value->error);
-    break;
-  }
+Value *pop_value(Value *value, int index) {
+  /* Find the value to pop */
+  Value *popped = element_at(value, index);
 
-  /* Free the memory allocated for the Value itself */
-  free(value);
+  /* Shift memory after the popped item over the top*/
+  memmove(element_at(value, index), element_at(value, index + 1),
+          sizeof(Value *) * (count(value) - index - 1));
+
+  /* Decrement the size of the list */
+  value->sexpr.count--;
+
+  /* Reallocate the memory used */
+  value->sexpr.cell =
+      realloc(value->sexpr.cell, sizeof(Value *) * value->sexpr.count);
+  return popped;
+}
+
+Value *take_value(Value *value, int index) {
+  Value *popped = pop_value(value, index);
+  delete_value(value);
+  return popped;
 }

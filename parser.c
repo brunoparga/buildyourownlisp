@@ -1,11 +1,9 @@
 #define _GNU_SOURCE
 
 #include "parser.h"
-#include "eval.h"
-#include "sexpressizer.h"
-#include "value.h"
 
-static char *read_grammar(const char *path) {
+/* Given a filename, return its contents as a string (hopefully) */
+char *read_file(const char *path) {
   FILE *file = fopen(path, "rb");
   if (file == NULL) {
     fprintf(stderr, "Could not open file \"%s\".\n", path);
@@ -36,7 +34,7 @@ static char *read_grammar(const char *path) {
 
 Parser *create_parser() {
   Parser *parser = malloc(sizeof(Parser));
-  parser->language = read_grammar(GRAMMAR_FILE);
+  parser->language = read_file(GRAMMAR_FILE);
 
   if (parser->language == NULL) {
     printf("could not read grammar file.");
@@ -52,19 +50,20 @@ Parser *create_parser() {
   return parser;
 }
 
+/* Parse and print an expression */
 void parse(Parser *parser, char *input) {
-  /* Define parsers with the following Language */
-  mpca_lang(MPCA_LANG_DEFAULT, parser->language, parser->Number, parser->Symbol, parser->Sexpr,
-            parser->Expr, parser->Lispy);
+  /* Define parsers for our Language */
+  mpca_lang(MPCA_LANG_DEFAULT, parser->language, parser->Number, parser->Symbol,
+            parser->Sexpr, parser->Expr, parser->Lispy);
 
   /* Attempt to parse the user input */
   mpc_result_t result;
   if (mpc_parse("<stdin>", input, parser->Lispy, &result)) {
     /* On success print the result */
     Value *value = sexpressize(result.output);
-    // Value value = eval(result.output);
+    // Value value = evaluate(result.output);
     print_value(value);
-    free_value(value);
+    delete_value(value);
     mpc_ast_delete(result.output);
   } else {
     /* Otherwise print the error */
@@ -75,6 +74,7 @@ void parse(Parser *parser, char *input) {
 
 void cleanup_parser(Parser *parser) {
   /* Undefine and Delete our Parsers */
-  mpc_cleanup(5, parser->Number, parser->Symbol, parser->Sexpr, parser->Expr, parser->Lispy);
+  mpc_cleanup(5, parser->Number, parser->Symbol, parser->Sexpr, parser->Expr,
+              parser->Lispy);
   free(parser);
 }

@@ -1,7 +1,4 @@
-#include <stdlib.h>
-
 #include "sexpressizer.h"
-#include "value.h"
 
 static Value *append_value(Value *list, Value *new_value) {
   list->sexpr.count++;
@@ -15,7 +12,7 @@ static Value *append_value(Value *list, Value *new_value) {
 static Value *read_number(mpc_ast_t *t) {
   errno = 0;
   double number = strtod(t->contents, NULL);
-  return errno == ERANGE ? make_error("Error: number outside of valid bounds.")
+  return errno == ERANGE ? make_error("number outside of valid bounds.")
                          : make_number(number);
 }
 
@@ -35,13 +32,13 @@ Value *sexpressize(mpc_ast_t *t) {
   }
 
   /* Fill the list with any valid expression contained within */
-  for (int i = 0; i < t->children_num; i++) {
-    if (strcmp(t->children[i]->contents, "(") == 0 ||
-        strcmp(t->children[i]->contents, ")") == 0 ||
-        strcmp(t->children[i]->tag, "regex") == 0) {
+  for (int index = 0; index < t->children_num; index++) {
+    if (strcmp(t->children[index]->contents, "(") == 0 ||
+        strcmp(t->children[index]->contents, ")") == 0 ||
+        strcmp(t->children[index]->tag, "regex") == 0) {
       continue;
     }
-    value = append_value(value, sexpressize(t->children[i]));
+    value = append_value(value, sexpressize(t->children[index]));
   }
 
   return value;
