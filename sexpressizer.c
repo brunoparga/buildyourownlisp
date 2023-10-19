@@ -1,11 +1,14 @@
 #include <stdlib.h>
+
 #include "sexpressizer.h"
 #include "value.h"
 
 static Value *append_value(Value *list, Value *new_value) {
   list->sexpr.count++;
-  list->sexpr.cell = realloc(list->sexpr.cell, sizeof(Value*) * list->sexpr.count);
-  list->sexpr.cell[list->sexpr.count - 1] = new_value;
+  list->sexpr.cell =
+      realloc(list->sexpr.cell, sizeof(Value *) * count(list));
+
+  list->sexpr.cell[count(list) - 1] = new_value;
   return list;
 }
 

@@ -40,17 +40,37 @@ Value *make_error(Error error) {
   return value;
 }
 
+/* Return the count of values in the cell of an S-expression */
+int count(Value *sexpr_value) {
+  if (sexpr_value->type != SEXPR) {
+    printf("Error: Value is not an S-expression and doesn't have a count.");
+    return -1;
+  }
+
+  return sexpr_value->sexpr.count;
+}
+
+/* Return the element at the given index, contained in an S-expression */
+Value *element_at(Value *sexpr_value, int index) {
+  if (sexpr_value->type != SEXPR) {
+    return make_error(
+        "cannot get element from a Value that is not an S-expressions.");
+  }
+
+  return sexpr_value->sexpr.cell[index];
+}
+
 /* Print a Value */
 static void print_value_no_newline(Value *value);
 
 void print_expression(Value *value, char open, char close) {
   putchar(open);
-  for (int i = 0; i < value->sexpr.count; i++) {
+  for (int index = 0; index < count(value); index++) {
     /* Print Value contained within */
-    print_value_no_newline(value->sexpr.cell[i]);
+    print_value_no_newline(element_at(value, index));
 
     /* Don't print trailing space if last element */
-    if (i != value->sexpr.count - 1) {
+    if (index != count(value) - 1) {
       putchar(' ');
     }
   }
@@ -95,8 +115,8 @@ void free_value(Value *value) {
     break;
   /* For Sexpr delete all the elements inside */
   case SEXPR:
-    for (int i = 0; i < value->sexpr.count; i++) {
-      free_value(value->sexpr.cell[i]);
+    for (int index = 0; index < count(value); index++) {
+      free_value(element_at(value, index));
     }
     /* Also free the memory allocated to contain the pointers */
     free(value->sexpr.cell);
