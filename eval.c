@@ -19,7 +19,7 @@ static Value *evaluate_sexpr(Value *value) {
   }
 
   /* Ensure first element is a Symbol */
-  Value *first = pop_value(value, 0);
+  Value *first = pop(value);
   if (!IS_SYMBOL(first)) {
     delete_value(first);
     delete_value(value);

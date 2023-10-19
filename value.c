@@ -160,6 +160,8 @@ Value *pop_value(Value *value, int index) {
   return popped;
 }
 
+inline Value *pop(Value *value) { return pop_value(value, 0); }
+
 Value *take_value(Value *value, int index) {
   Value *popped = pop_value(value, index);
   delete_value(value);

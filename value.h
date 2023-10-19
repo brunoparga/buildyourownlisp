@@ -49,6 +49,7 @@ int count(Value *sexpr_value);
 Value *element_at(Value *sexpr_value, int index);
 void print_value(Value *value);
 Value *pop_value(Value *value, int index);
+Value *pop(Value *value);
 Value *take_value(Value *value, int index);
 Value *append_value(Value *list, Value *new_value);
 

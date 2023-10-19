@@ -23,7 +23,7 @@ Value *compute(Value *value, Symbol *op) {
     }
   }
 
-  Value *result = pop_value(value, 0);
+  Value *result = pop(value);
 
 #define IS_OP(str) (strcmp(*op, str) == 0)
 
@@ -34,7 +34,7 @@ Value *compute(Value *value, Symbol *op) {
 
   while (count(value) > 0) {
     /* Pop the next element */
-    Value *operand = pop_value(value, 0);
+    Value *operand = pop(value);
 
     if (IS_OP("+")) {
       result->number += operand->number;
