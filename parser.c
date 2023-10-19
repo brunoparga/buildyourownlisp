@@ -44,6 +44,7 @@ Parser *create_parser() {
   parser->Number = mpc_new("number");
   parser->Symbol = mpc_new("symbol");
   parser->Sexpr = mpc_new("sexpr");
+  parser->Qexpr = mpc_new("qexpr");
   parser->Expr = mpc_new("expr");
   parser->Lispy = mpc_new("lispy");
 
@@ -76,7 +77,7 @@ Value *parse(Parser *parser, char *input) {
 
 void cleanup_parser(Parser *parser) {
   /* Undefine and Delete our Parsers */
-  mpc_cleanup(5, parser->Number, parser->Symbol, parser->Sexpr, parser->Expr,
-              parser->Lispy);
+  mpc_cleanup(6, parser->Number, parser->Symbol, parser->Sexpr, parser->Qexpr,
+              parser->Expr, parser->Lispy);
   free(parser);
 }
