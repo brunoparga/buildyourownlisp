@@ -9,6 +9,11 @@
     return make_error(error_message);                                          \
   }
 
+#define ASSERT_ONE_ARG(list, error_message)                                    \
+  LIST_ASSERT(list, count(list) == 1, error_message)
+#define ASSERT_CONTAINS_VALUES(list, error_message)                            \
+  LIST_ASSERT(list, count(element_at(list, 0)) > 0, error_message)
+
 Value *builtin_list(Value *value) {
   value->type = QEXPR;
   return value;
@@ -16,12 +21,11 @@ Value *builtin_list(Value *value) {
 
 Value *builtin_head(Value *value) {
   /* Check error conditions */
-  LIST_ASSERT(value, count(value) == 1,
-              "function 'head' passed too many arguments.")
+  ASSERT_ONE_ARG(value, "function 'head' passed too many arguments.")
   LIST_ASSERT(value, IS_QEXPR(element_at(value, 0)),
-              "function 'head' passed incorrect types.")
-  LIST_ASSERT(value, count(element_at(value, 0)) > 0,
-              "function 'head' passed invalid empty Q-expression.")
+              "function 'head' passed incorrect type.")
+  ASSERT_CONTAINS_VALUES(value,
+                         "function 'head' passed invalid empty list.")
 
   /* Otherwise take the first argument. */
   Value *result = take_value(value, 0);
@@ -36,12 +40,11 @@ Value *builtin_head(Value *value) {
 
 Value *builtin_tail(Value *value) {
   /* Check error conditions */
-  LIST_ASSERT(value, count(value) == 1,
-              "function 'tail' passed too many arguments.")
+  ASSERT_ONE_ARG(value, "function 'tail' passed too many arguments.")
   LIST_ASSERT(value, IS_QEXPR(element_at(value, 0)),
-              "function 'tail' passed incorrect types.")
-  LIST_ASSERT(value, count(element_at(value, 0)) > 0,
-              "function 'tail' passed invalid empty Q-expression.")
+              "function 'tail' passed incorrect type.")
+  ASSERT_CONTAINS_VALUES(value,
+                         "function 'tail' passed invalid empty list.")
 
   /* Take first argument */
   Value *result = take_value(value, 0);
@@ -68,8 +71,7 @@ Value *builtin_join(Value *value) {
 }
 
 Value *builtin_eval(Value *value) {
-  LIST_ASSERT(value, count(value) == 1,
-              "function 'eval' passed too many arguments.")
+  ASSERT_ONE_ARG(value, "function 'eval' passed too many arguments.")
   LIST_ASSERT(value, IS_QEXPR(element_at(value, 0)),
               "function 'eval' passed incorrect types.")
 
