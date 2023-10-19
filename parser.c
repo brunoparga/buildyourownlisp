@@ -50,26 +50,28 @@ Parser *create_parser() {
   return parser;
 }
 
-/* Parse and print an expression */
-void parse(Parser *parser, char *input) {
+/* Parse an expression, returning its Value */
+Value *parse(Parser *parser, char *input) {
   /* Define parsers for our Language */
   mpca_lang(MPCA_LANG_DEFAULT, parser->language, parser->Number, parser->Symbol,
             parser->Sexpr, parser->Expr, parser->Lispy);
 
   /* Attempt to parse the user input */
   mpc_result_t result;
+  Value *value;
+
   if (mpc_parse("<stdin>", input, parser->Lispy, &result)) {
-    /* On success print the result */
-    Value *value = sexpressize(result.output);
-    // Value value = evaluate(result.output);
-    print_value(value);
-    delete_value(value);
+    /* On success return the result */
+    value = sexpressize(result.output);
     mpc_ast_delete(result.output);
   } else {
-    /* Otherwise print the error */
-    mpc_err_print(result.error);
+    /* Otherwise return the error */
+    Error error = mpc_err_string(result.error);
+    value = make_error(error);
     mpc_err_delete(result.error);
   }
+
+  return value;
 }
 
 void cleanup_parser(Parser *parser) {
