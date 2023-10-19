@@ -6,6 +6,6 @@
 
 #include "value.h"
 
-Value *compute(Value *value, Symbol *op);
+Value *builtin_op(Value *value, Symbol *op);
 
 #endif

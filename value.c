@@ -175,3 +175,14 @@ Value *append_value(Value *list, Value *new_value) {
   list->sexpr.cell[count(list) - 1] = new_value;
   return list;
 }
+
+Value *join_values(Value *left, Value *right) {
+  /* For each cell in `right` add it to `left` */
+  while (count(right)) {
+    left = append_value(left, pop(right));
+  }
+
+  /* Delete the empty `right` and return `left` */
+  delete_value(right);
+  return left;
+}

@@ -13,7 +13,7 @@ void numeric_error(Value *x, Value *y, ErrorMsg message) {
 }
 
 /* Calculate numerical expressions */
-Value *compute(Value *value, Symbol *op) {
+Value *builtin_op(Value *value, Symbol *op) {
   /* Ensure all arguments are numbers */
   for (int index = 0; index < count(value); index++) {
     if (!IS_NUMBER(element_at(value, index))) {

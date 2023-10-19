@@ -1,4 +1,30 @@
 #include "eval.h"
+#include "value.h"
+
+static Value *builtin(Value *value, Symbol *function) {
+  if (strcmp("list", *function) == 0) {
+    return builtin_list(value);
+  }
+  if (strcmp("head", *function) == 0) {
+    return builtin_head(value);
+  }
+  if (strcmp("tail", *function) == 0) {
+    return builtin_tail(value);
+  }
+  if (strcmp("join", *function) == 0) {
+    return builtin_join(value);
+  }
+  if (strcmp("eval", *function) == 0) {
+    return builtin_eval(value);
+  }
+  if (strstr("+-*/^%", *function) || strcmp(*function, "max") == 0 ||
+      strcmp(*function, "min")) {
+    return builtin_op(value, function);
+  }
+
+  delete_value(value);
+  return make_error("undefined function.");
+}
 
 static Value *evaluate_sexpr(Value *value) {
   /* Evaluate children */
@@ -27,7 +53,7 @@ static Value *evaluate_sexpr(Value *value) {
   }
 
   /* Pass operator for calculation */
-  Value *result = compute(value, &first->symbol);
+  Value *result = builtin(value, &first->symbol);
   delete_value(first);
   return result;
 }

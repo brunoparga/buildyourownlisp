@@ -52,5 +52,6 @@ Value *pop_value(Value *value, int index);
 Value *pop(Value *value);
 Value *take_value(Value *value, int index);
 Value *append_value(Value *list, Value *new_value);
+Value *join_values(Value *left, Value *right);
 
 #endif
