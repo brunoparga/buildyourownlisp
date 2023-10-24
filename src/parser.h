@@ -1,7 +1,7 @@
 #ifndef lispy_parser_h
 #define lispy_parser_h
 
-#include "lib/mpc.h"
+#include "../lib/mpc.h"
 
 #include "eval.h"
 #include "expressionizer.h"

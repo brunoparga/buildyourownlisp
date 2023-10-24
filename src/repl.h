@@ -24,8 +24,6 @@ void add_history(char *unused) {}
 #include <editline/readline.h>
 #endif
 
-#include "lib/mpc.h"
-
 #include "parser.h"
 
 void repl(Parser* parser);

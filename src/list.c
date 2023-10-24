@@ -1,7 +1,6 @@
 #include "list.h"
 
 #include "eval.h"
-#include "value.h"
 
 #define LIST_ASSERT(list, condition, error_message)                            \
   if (!(condition)) {                                                          \

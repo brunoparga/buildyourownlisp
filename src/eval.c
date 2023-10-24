@@ -1,5 +1,4 @@
 #include "eval.h"
-#include "value.h"
 
 static Value *builtin(Value *value, Symbol *function) {
   if (strcmp("list", *function) == 0) {
