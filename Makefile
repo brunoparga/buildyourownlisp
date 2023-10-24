@@ -3,7 +3,7 @@ CFLAGS = -g -W -Wall -ggdb3 -std=c99
 LDFLAGS = -ledit -lm
 COMPILE = $(CC) -c $(CFLAGS) $< -o $@
 
-OBJECTS = build/calc.o build/eval.o build/expressionizer.o build/list.o build/parser.o build/repl.o build/value.o build/mpc.o
+OBJECTS = build/calc.o build/eval.o build/expressionizer.o build/list.o build/parser.o build/repl.o build/value.o build/mpc.o build/read_file.o
 TARGET = build/lispy
 
 $(TARGET): $(OBJECTS)
@@ -32,6 +32,13 @@ build/list.o: src/list.c src/list.h build/value.o
 
 build/value.o: src/value.c src/value.h
 	$(COMPILE)
+
+build/read_file.o: utils/read_file.c utils/read_file.h
+	$(COMPILE)
+
+test: $(TARGET)
+	$(CC) $(CFLAGS) test/test.c -o build/test
+	./build/test
 
 # I might want to delete this is it interferes with gdb
 .PHONY: clean

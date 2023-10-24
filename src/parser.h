@@ -7,6 +7,8 @@
 #include "expressionizer.h"
 #include "value.h"
 
+#include "../utils/read_file.h"
+
 #define GRAMMAR_FILE "/home/bruno/code/learn/buildyourownlisp/grammar.txt"
 
 typedef struct Parser {
