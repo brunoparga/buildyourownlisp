@@ -37,7 +37,7 @@ build/value.o: src/value.c src/value.h
 build/read_file.o: utils/read_file.c utils/read_file.h
 	$(COMPILE)
 
-test: $(TARGET)
+test: $(TARGET) test/test.c
 	$(CC) $(CFLAGS) test/test.c -o build/test
 	./build/test
 
