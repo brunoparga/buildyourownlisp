@@ -3,11 +3,12 @@ CFLAGS = -g -W -Wall -ggdb3 -std=c99
 LDFLAGS = -ledit -lm
 COMPILE = $(CC) -c $(CFLAGS) $< -o $@
 
+SOURCES = src/main.c src/calc.c src/eval.c src/expressionizer.c src/list.c src/parser.c src/repl.c src/value.c lib/mpc.c utils/read_file.c
 OBJECTS = src/main.c build/calc.o build/eval.o build/expressionizer.o build/list.o build/parser.o build/repl.o build/value.o build/mpc.o build/read_file.o
 TARGET = build/lye
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $@ $(SOURCES) $(LDFLAGS)
 
 build/repl.o: src/repl.c src/repl.h build/parser.o
 	$(COMPILE)
@@ -44,4 +45,4 @@ test: $(TARGET)
 .PHONY: clean
 
 clean:
-	@rm -f $(TARGET) $(OBJECTS) core
+	@rm -f $(TARGET) build/test build/*.o
