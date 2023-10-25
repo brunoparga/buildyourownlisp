@@ -39,11 +39,11 @@ Value *expressionize(mpc_ast_t *ast) {
   if (HAS_TAG("qexpr")) {
     value = make_qexpr();
   }
-#undef HAS_TAG
 
   /* Fill the list with any valid expression contained within */
   for (int index = 0; index < ast->children_num; index++) {
     if (strcmp(ast->children[index]->tag, "regex") == 0 ||
+        strcmp(ast->children[index]->tag, "comment|>") == 0 ||
         strcmp(ast->children[index]->contents, "(") == 0 ||
         strcmp(ast->children[index]->contents, ")") == 0 ||
         strcmp(ast->children[index]->contents, "{") == 0 ||
@@ -52,6 +52,7 @@ Value *expressionize(mpc_ast_t *ast) {
     }
     value = append_value(value, expressionize(ast->children[index]));
   }
+#undef HAS_TAG
 
   return value;
 }

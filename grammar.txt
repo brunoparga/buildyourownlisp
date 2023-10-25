@@ -3,4 +3,5 @@ symbol   : "list" | "head" | "tail" | "join" | "eval" | '+' | '-' | '*' | '/' | 
 sexpr    : '(' <expr>* ')' ;
 qexpr    : '{' <expr>* '}' ;
 expr     : <number> | <symbol> | <sexpr> | <qexpr> ;
-lye      : /^/ <expr>* /$/ ;
+comment  : ';' /.*/ ;
+lye      : /^/ (<expr> | <comment>)* /$/ ;

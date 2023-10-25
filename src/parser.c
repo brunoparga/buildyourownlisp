@@ -2,18 +2,12 @@
 
 Parser *create_parser() {
   Parser *parser = malloc(sizeof(Parser));
-  parser->language = read_file(GRAMMAR_FILE);
-
-  if (parser->language == NULL) {
-    printf("could not read grammar file.");
-    return NULL;
-  }
-
   parser->Number = mpc_new("number");
   parser->Symbol = mpc_new("symbol");
   parser->Sexpr = mpc_new("sexpr");
   parser->Qexpr = mpc_new("qexpr");
   parser->Expr = mpc_new("expr");
+  parser->Comment = mpc_new("comment");
   parser->Lye = mpc_new("lye");
 
   return parser;
@@ -22,8 +16,9 @@ Parser *create_parser() {
 /* Parse an expression, returning its Value */
 Value *parse(Parser *parser, char *input) {
   /* Define parsers for our Language */
-  mpca_lang(MPCA_LANG_DEFAULT, parser->language, parser->Number, parser->Symbol,
-            parser->Sexpr, parser->Qexpr, parser->Expr, parser->Lye);
+  mpca_lang_contents(MPCA_LANG_DEFAULT, GRAMMAR_FILE, parser->Number,
+                     parser->Symbol, parser->Sexpr, parser->Qexpr, parser->Expr,
+                     parser->Comment, parser->Lye);
 
   /* Attempt to parse the user input */
   mpc_result_t result;
@@ -45,7 +40,7 @@ Value *parse(Parser *parser, char *input) {
 
 void cleanup_parser(Parser *parser) {
   /* Undefine and Delete our Parsers */
-  mpc_cleanup(6, parser->Number, parser->Symbol, parser->Sexpr, parser->Qexpr,
-              parser->Expr, parser->Lye);
+  mpc_cleanup(7, parser->Number, parser->Symbol, parser->Sexpr, parser->Qexpr,
+              parser->Expr, parser->Comment, parser->Lye);
   free(parser);
 }
