@@ -3,11 +3,11 @@ CFLAGS = -g -W -Wall -ggdb3 -std=c99
 LDFLAGS = -ledit -lm
 COMPILE = $(CC) -c $(CFLAGS) $< -o $@
 
-OBJECTS = build/calc.o build/eval.o build/expressionizer.o build/list.o build/parser.o build/repl.o build/value.o build/mpc.o build/read_file.o
+OBJECTS = src/main.c build/calc.o build/eval.o build/expressionizer.o build/list.o build/parser.o build/repl.o build/value.o build/mpc.o build/read_file.o
 TARGET = build/lye
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) -o $@ src/main.c $^ $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 build/repl.o: src/repl.c src/repl.h build/parser.o
 	$(COMPILE)
