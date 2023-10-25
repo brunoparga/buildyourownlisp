@@ -1,5 +1,5 @@
-#ifndef lispy_repl_h
-#define lispy_repl_h
+#ifndef lye_repl_h
+#define lye_repl_h
 
 /* If we are compiling on Windows compile these functions */
 #ifdef _WIN32
@@ -26,6 +26,6 @@ void add_history(char *unused) {}
 
 #include "parser.h"
 
-void repl(Parser* parser);
+void repl(Parser *parser);
 
 #endif

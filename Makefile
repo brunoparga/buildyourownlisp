@@ -4,7 +4,7 @@ LDFLAGS = -ledit -lm
 COMPILE = $(CC) -c $(CFLAGS) $< -o $@
 
 OBJECTS = build/calc.o build/eval.o build/expressionizer.o build/list.o build/parser.o build/repl.o build/value.o build/mpc.o build/read_file.o
-TARGET = build/lispy
+TARGET = build/lye
 
 $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) -o $@ src/main.c $^ $(LDFLAGS)

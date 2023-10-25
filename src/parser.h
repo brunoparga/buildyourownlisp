@@ -1,5 +1,5 @@
-#ifndef lispy_parser_h
-#define lispy_parser_h
+#ifndef lye_parser_h
+#define lye_parser_h
 
 #include "../lib/mpc.h"
 
@@ -18,7 +18,7 @@ typedef struct Parser {
   mpc_parser_t *Sexpr;
   mpc_parser_t *Qexpr;
   mpc_parser_t *Expr;
-  mpc_parser_t *Lispy;
+  mpc_parser_t *Lye;
 } Parser;
 
 Parser *create_parser();

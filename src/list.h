@@ -1,5 +1,5 @@
-#ifndef lispy_list_h
-#define lispy_list_h
+#ifndef lye_list_h
+#define lye_list_h
 
 #include "value.h"
 

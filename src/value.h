@@ -1,5 +1,5 @@
-#ifndef lispy_value_h
-#define lispy_value_h
+#ifndef lye_value_h
+#define lye_value_h
 
 #include <math.h>
 #include <stdio.h>

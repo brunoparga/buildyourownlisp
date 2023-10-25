@@ -1,8 +1,8 @@
 #include "repl.h"
 
-void repl(Parser* parser) {
+void repl(Parser *parser) {
   for (;;) {
-    char *input = readline("lispy> ");
+    char *input = readline("lye> ");
     add_history(input);
     Value *value = parse(parser, input);
     print_value(value);

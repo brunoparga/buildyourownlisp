@@ -14,7 +14,7 @@ Parser *create_parser() {
   parser->Sexpr = mpc_new("sexpr");
   parser->Qexpr = mpc_new("qexpr");
   parser->Expr = mpc_new("expr");
-  parser->Lispy = mpc_new("lispy");
+  parser->Lye = mpc_new("lye");
 
   return parser;
 }
@@ -23,13 +23,13 @@ Parser *create_parser() {
 Value *parse(Parser *parser, char *input) {
   /* Define parsers for our Language */
   mpca_lang(MPCA_LANG_DEFAULT, parser->language, parser->Number, parser->Symbol,
-            parser->Sexpr, parser->Qexpr, parser->Expr, parser->Lispy);
+            parser->Sexpr, parser->Qexpr, parser->Expr, parser->Lye);
 
   /* Attempt to parse the user input */
   mpc_result_t result;
   Value *value;
 
-  if (mpc_parse("<stdin>", input, parser->Lispy, &result)) {
+  if (mpc_parse("<stdin>", input, parser->Lye, &result)) {
     /* On success return the result */
     value = evaluate(expressionize(result.output));
     mpc_ast_delete(result.output);
@@ -46,6 +46,6 @@ Value *parse(Parser *parser, char *input) {
 void cleanup_parser(Parser *parser) {
   /* Undefine and Delete our Parsers */
   mpc_cleanup(6, parser->Number, parser->Symbol, parser->Sexpr, parser->Qexpr,
-              parser->Expr, parser->Lispy);
+              parser->Expr, parser->Lye);
   free(parser);
 }

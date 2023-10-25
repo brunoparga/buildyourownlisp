@@ -1,5 +1,5 @@
-#ifndef lispy_expressionizer_h
-#define lispy_expressionizer_h
+#ifndef lye_expressionizer_h
+#define lye_expressionizer_h
 
 #include "../lib/mpc.h"
 #include "value.h"
