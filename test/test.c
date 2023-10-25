@@ -5,6 +5,10 @@
 
 #include "../utils/read_file.c"
 
+#define ANSI_COLOR_RED "\e[1;31m"
+#define ANSI_COLOR_GREEN "\e[1;32m"
+#define ANSI_COLOR_RESET "\e[0m"
+
 static FTS *open_tests_dir() {
   FTS *test_dir;
   char *paths[2];
@@ -58,7 +62,7 @@ static void print_fail(char *filename, char *expected, char *result) {
   error_msg[0] = '\0';
   strcat(error_msg, "(");
   strcat(error_msg, filename + 7);
-  strcat(error_msg, ") Fail: expected ");
+  strcat(error_msg, ") " ANSI_COLOR_RED "Fail" ANSI_COLOR_RESET ": expected ");
   strcat(error_msg, expected);
   strcat(error_msg, " but got ");
   strcat(error_msg, result);
@@ -109,7 +113,13 @@ int main(void) {
     }
   }
 
-  printf("\r%d tests passed, %d tests failed.\n", *succ_ptr, *fail_ptr);
+  int total = successes + failures;
+  if (failures == 0) {
+    printf("Ran " ANSI_COLOR_GREEN "%d" ANSI_COLOR_RESET " tests, all passed. Hooray!\n", total);
+  } else {
+    printf("Ran %d tests, " ANSI_COLOR_GREEN "%d" ANSI_COLOR_RESET " passed, " ANSI_COLOR_RED "%d" ANSI_COLOR_RESET " failed.\n", total, successes, failures);
+  }
+
   remove(tmp_file);
   return 0;
 }
