@@ -66,7 +66,7 @@ static void print_fail(char *filename, char *expected, char *result) {
   printf("%s", error_msg);
 }
 
-static void run_test(char *test_file, char *tmp_file) {
+static void run_test(char *test_file, char *tmp_file, int *successes, int *failures) {
   // Call the Lye executable on a given test file
   char command[100];
   freopen(tmp_file, "w+", stdout);
@@ -83,8 +83,9 @@ static void run_test(char *test_file, char *tmp_file) {
   freopen("/dev/tty", "w", stdout);
 
   if (strcmp(result, expected) == 0) {
-    printf("The test passed!\n");
+    *successes += 1;
   } else {
+    *failures += 1;
     print_fail(test_file, expected, result);
   }
 }
@@ -94,13 +95,21 @@ int main(void) {
   FTS *test_dir = open_tests_dir();
   FTSENT *subdir;
 
+  int successes;
+  int *succ_ptr = &successes;
+  *succ_ptr = 0;
+
+  int failures;
+  int *fail_ptr = &failures;
+  *fail_ptr = 0;
+
   while ((subdir = fts_read(test_dir)) != NULL) {
     if (subdir->fts_info == FTS_F && is_test(subdir->fts_path)) {
-      printf("%s\n", subdir->fts_path);
-      run_test(subdir->fts_path, tmp_file);
+      run_test(subdir->fts_path, tmp_file, succ_ptr, fail_ptr);
     }
   }
 
+  printf("\r%d tests passed, %d tests failed.\n", *succ_ptr, *fail_ptr);
   remove(tmp_file);
   return 0;
 }
