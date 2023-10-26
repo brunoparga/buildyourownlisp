@@ -3,8 +3,8 @@ CFLAGS = -g -W -Wall -ggdb3 -std=c99
 LDFLAGS = -ledit -lm
 COMPILE = $(CC) -c $(CFLAGS) $< -o $@
 
-SOURCES = src/main.c src/calc.c src/eval.c src/expressionizer.c src/list.c src/parser.c src/repl.c src/value.c lib/mpc.c utils/read_file.c
-OBJECTS = src/main.c build/calc.o build/eval.o build/expressionizer.o build/list.o build/parser.o build/repl.o build/value.o build/mpc.o build/read_file.o
+SOURCES = src/main.c src/calc.c src/eval.c src/expressionizer.c src/list.c src/parser.c src/repl.c src/value.c lib/mpc.o utils/read_file.c
+OBJECTS = src/main.c build/calc.o build/eval.o build/expressionizer.o build/list.o build/parser.o build/repl.o build/value.o build/read_file.o
 TARGET = build/lye
 
 $(TARGET): $(OBJECTS)
@@ -13,16 +13,13 @@ $(TARGET): $(OBJECTS)
 build/repl.o: src/repl.c src/repl.h build/parser.o
 	$(COMPILE)
 
-build/parser.o: src/parser.c src/parser.h build/eval.o build/value.o build/mpc.o
+build/parser.o: src/parser.c src/parser.h build/eval.o build/value.o lib/mpc.o
 	$(COMPILE)
 
 build/eval.o: src/eval.c src/eval.h build/calc.o build/list.o build/value.o
 	$(COMPILE)
 
-build/expressionizer.o: src/expressionizer.c src/expressionizer.h build/mpc.o build/value.o
-	$(COMPILE)
-
-build/mpc.o: lib/mpc.c lib/mpc.h
+build/expressionizer.o: src/expressionizer.c src/expressionizer.h lib/mpc.o build/value.o
 	$(COMPILE)
 
 build/calc.o: src/calc.c src/calc.h build/value.o
