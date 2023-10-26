@@ -5,7 +5,7 @@
 
 #include "file.h"
 
-static FTS *open_dir(char *dir) {
+FTS *open_dir(char *dir) {
   FTS *test_dir;
   char *paths[2];
   paths[0] = dir;

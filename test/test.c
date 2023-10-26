@@ -3,10 +3,8 @@
 
 #include "../utils/file.c"
 
-#define ANSI_COLOR_RED "\e[1;31m"
-#define ANSI_COLOR_GREEN "\e[1;32m"
-#define ANSI_COLOR_RESET "\e[0m"
-
+#define GREEN(text) "\e[1;32m" text "\e[0m"
+#define RED(text) "\e[1;31m" text "\e[0m"
 
 static inline int is_test(char *path) {
   char *extension = strrchr(path, '.');
@@ -43,19 +41,6 @@ static inline char *get_result(char *tmp_file) {
   char *result = read_file(tmp_file);
   result[strcspn(result, "\n")] = '\0';
   return result;
-}
-
-static void print_fail(char *filename, char *expected, char *result) {
-  char error_msg[200];
-  error_msg[0] = '\0';
-  strcat(error_msg, "(");
-  strcat(error_msg, filename + 7);
-  strcat(error_msg, ") " ANSI_COLOR_RED "Fail" ANSI_COLOR_RESET ": expected ");
-  strcat(error_msg, expected);
-  strcat(error_msg, " but got ");
-  strcat(error_msg, result);
-  strcat(error_msg, ".\n");
-  printf("%s", error_msg);
 }
 
 static void run_test(char *test_filename, char *result_file, int *successes,
@@ -101,7 +86,9 @@ static void run_test(char *test_filename, char *result_file, int *successes,
         *successes += 1;
       } else {
         *failures += 1;
-        print_fail(test_filename, expected, result);
+        freopen("/dev/tty", "w", stdout);
+        printf("(%s) " RED("Fail") ": expected %s but got %s.\n",
+               test_filename + 7, expected, result);
       }
     }
   }
@@ -116,7 +103,7 @@ static void run_test(char *test_filename, char *result_file, int *successes,
 
 int main(void) {
   char *result_file = "./test/test.tmp";
-  FTS *test_dir = open_tests_dir();
+  FTS *test_dir = open_dir("./test");
   FTSENT *subdir;
 
   int successes;
@@ -135,14 +122,13 @@ int main(void) {
 
   int total = successes + failures;
   if (failures == 0) {
-    printf("Ran " ANSI_COLOR_GREEN "%d" ANSI_COLOR_RESET
-           " tests, all passed. Hooray!\n",
+    printf("Ran " GREEN("%d") " tests, all passed. Hooray!\n",
            total);
   } else {
-    printf("Ran %d tests, " ANSI_COLOR_GREEN "%d" ANSI_COLOR_RESET
-           " passed, " ANSI_COLOR_RED "%d" ANSI_COLOR_RESET " failed.\n",
+    printf("Ran %d tests, " GREEN("%d") " passed, " RED("%d") " failed.\n",
            total, successes, failures);
   }
+
   remove(result_file);
   return 0;
 }
