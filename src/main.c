@@ -3,9 +3,7 @@
 
 static void run_file(Parser *parser, char *filename) {
   char *source = read_file(filename);
-  Value *value = parse(parser, source);
-  print_value(value);
-  delete_value(value);
+  run_string(parser, source);
 }
 
 int main(int argc, char **argv) {
@@ -14,8 +12,10 @@ int main(int argc, char **argv) {
     puts("Lye Version 0.0.0.4");
     puts("Press Ctrl+c to Exit\n");
     repl(parser);
-  } else {
+  } else if (argc == 2) {
     run_file(parser, argv[1]);
+  } else if (argc == 3 && strcmp(argv[1], "-s") == 0) {
+    run_string(parser, argv[2]);
   }
   // This might be a memory leak - the parser never really gets cleaned
   // up because the program exits before that. I'll have to trap the
