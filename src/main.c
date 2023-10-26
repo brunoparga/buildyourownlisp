@@ -1,5 +1,5 @@
+#include "../utils/file.h"
 #include "repl.h"
-#include "../utils/read_file.h"
 
 static void run_file(Parser *parser, char *filename) {
   char *source = read_file(filename);

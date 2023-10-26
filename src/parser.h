@@ -7,7 +7,7 @@
 #include "expressionizer.h"
 #include "value.h"
 
-#include "../utils/read_file.h"
+#include "../utils/file.h"
 
 #define GRAMMAR_FILE "/home/bruno/code/learn/buildyourownlisp/grammar.txt"
 

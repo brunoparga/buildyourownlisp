@@ -1,30 +1,12 @@
 #include <err.h>
-#include <fts.h>
 #include <string.h>
 
-#include "../utils/read_file.c"
+#include "../utils/file.c"
 
 #define ANSI_COLOR_RED "\e[1;31m"
 #define ANSI_COLOR_GREEN "\e[1;32m"
 #define ANSI_COLOR_RESET "\e[0m"
 
-static FTS *open_tests_dir() {
-  FTS *test_dir;
-  char *paths[2];
-  paths[0] = "./test";
-  paths[1] = NULL;
-
-  if ((test_dir = fts_open(paths, FTS_NOCHDIR, NULL)) == NULL) {
-    err(1, "Failed to open test directory.");
-  }
-
-  FTSENT *children = fts_children(test_dir, 0);
-  if (children == NULL) {
-    err(1, "No test directories found");
-  }
-
-  return test_dir;
-}
 
 static inline int is_test(char *path) {
   char *extension = strrchr(path, '.');

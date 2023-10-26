@@ -1,6 +1,27 @@
 #define _GNU_SOURCE
 
-#include "read_file.h"
+#include <err.h>
+#include <fts.h>
+
+#include "file.h"
+
+static FTS *open_dir(char *dir) {
+  FTS *test_dir;
+  char *paths[2];
+  paths[0] = dir;
+  paths[1] = NULL;
+
+  if ((test_dir = fts_open(paths, FTS_NOCHDIR, NULL)) == NULL) {
+    err(1, "Failed to open test directory.");
+  }
+
+  FTSENT *children = fts_children(test_dir, 0);
+  if (children == NULL) {
+    err(1, "No test directories found");
+  }
+
+  return test_dir;
+}
 
 /* Given a filename, return its contents as a string (hopefully) */
 char *read_file(const char *path) {
