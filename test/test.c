@@ -19,7 +19,7 @@ static inline int is_test(char *path) {
 
 static void build_command(char *source, char *result) {
   char *lye = "./build/lye";
-  int command_length = strlen(lye) + strlen(source) + 6;
+  int command_length = strlen(lye) + strlen(source) + 7;
   char concat[command_length];
   memset(concat, 0, command_length);
   strcat(concat, lye);
@@ -85,6 +85,8 @@ static void run_test(char *line, int line_number, char *test_filename,
       printf("(%s:%d) " RED("Fail") ": expected %s but got %s.\n",
              test_filename + 7, line_number, expected, result);
     }
+
+    free(result);
   }
 }
 
@@ -128,6 +130,7 @@ int main(void) {
   }
 
   int total = successes + failures;
+  free(test_dir);
   freopen("/dev/tty", "w", stdout);
   if (failures == 0) {
     printf("Ran " GREEN("%d") " tests, all passed. Hooray!\n", total);

@@ -4,6 +4,7 @@
 static void run_file(Parser *parser, char *filename) {
   char *source = read_file(filename);
   run_string(parser, source);
+  free(source);
 }
 
 int main(int argc, char **argv) {
