@@ -1,0 +1,2 @@
+max 0 ; Expect 0
+max 4 3 8 1 -4 ; Expect 8
