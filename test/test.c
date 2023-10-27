@@ -118,19 +118,27 @@ static void run_test_file(char *test_filename, char *result_filename) {
   }
 }
 
-int main(void) {
+int main(int argc, char **argv) {
   char *result_filename = "./test/test.tmp";
-  FTS *test_dir = open_dir("./test");
-  FTSENT *subdir;
 
-  while ((subdir = fts_read(test_dir)) != NULL) {
-    if (subdir->fts_info == FTS_F && is_test(subdir->fts_path)) {
-      run_test_file(subdir->fts_path, result_filename);
+  if (argc > 1) {
+    for (int i = 1; i < argc; i++) {
+      run_test_file(argv[i], result_filename);
     }
+  } else {
+    FTS *test_dir = open_dir("./test");
+    FTSENT *subdir;
+
+    while ((subdir = fts_read(test_dir)) != NULL) {
+      if (subdir->fts_info == FTS_F && is_test(subdir->fts_path)) {
+        run_test_file(subdir->fts_path, result_filename);
+      }
+    }
+
+    free(test_dir);
   }
 
   int total = successes + failures;
-  free(test_dir);
   freopen("/dev/tty", "w", stdout);
   if (failures == 0) {
     printf("Ran " GREEN("%d") " tests, all passed. Hooray!\n", total);
