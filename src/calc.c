@@ -66,6 +66,10 @@ Value *builtin_op(Value *value, Symbol *op) {
         break;
       }
     } else if (IS_OP("^")) {
+      if (result->number == 0 && operand->number < 0) {
+        result = numeric_error(result, operand, "cannot raise 0 to a negative power (requires dividing by 0).");
+        break;
+      }
       result->number = pow(result->number, operand->number);
     } else if (IS_OP("max")) {
       result->number = fmax(result->number, operand->number);
