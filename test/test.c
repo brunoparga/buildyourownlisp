@@ -17,7 +17,7 @@ static inline int is_test(char *path) {
   return !strcmp(extension, ".lye");
 }
 
-static char *build_command(char *source, char *result) {
+static void build_command(char *source, char *result) {
   char *lye = "./build/lye";
   int command_length = strlen(lye) + strlen(source) + 6;
   char concat[command_length];
@@ -27,7 +27,6 @@ static char *build_command(char *source, char *result) {
   strcat(concat, source);
   strcat(concat, "\"");
   strcpy(result, concat);
-  return result;
 }
 
 static char *get_expected(char *line) {
@@ -68,10 +67,11 @@ static void run_test(char *line, int line_number, char *test_filename,
 
     // Run the test, leaving the result in the temporary file
     char command[100];
-    system(build_command(line, command));
+    build_command(line, command);
+    system(command);
 
     // Reset the Lye command for the next test run
-    memset(command, 0, strlen(command));
+    command[0] = '\0';
 
     // Read the actual result from the temporary file
     char *result = get_result(result_filename);
