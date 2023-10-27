@@ -57,6 +57,9 @@ Value *builtin_op(Value *value, Symbol *op) {
         long int_result = (long)result->number;
         long int_operand = (long)operand->number;
         int_result %= int_operand;
+        if (int_result < 0) {
+          int_result += int_operand;
+        }
         result->number = (double)int_result;
       } else {
         result = numeric_error(result, operand, "operands of modulo must be integers.");

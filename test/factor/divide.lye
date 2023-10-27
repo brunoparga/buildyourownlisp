@@ -1,1 +1,20 @@
-/ 72 4 ; Expect 18
+; Handle integer and float division
+/ 72   4      ; Expect 18
+/ 25   100.0  ; Expect 0.250000
+/ 12.8 2      ; Expect 6.400000
+/ 10.5 0.25   ; Expect 42
+/ 99.9 0.7    ; Expect 142.714286
+
+; Handle successive divisions, left-associative
+; (1024 / 4) / 16
+/ 1024 4 16 ; Expect 16
+/ 1024 (/ 4 16) ; Expect 4096
+
+; Handle correctly division by zero
+/ 18 0 ; Expect Error: cannot divide by zero.
+/ 18.0 0.0 ; Expect Error: cannot divide by zero.
+
+; Correctly rejects dividing non-numbers
+; / 90 Hello ; Expect Error: can only operate on numbers. Found a value that is not a number.
+; / Hello 6 ; Expect Error: can only operate on numbers. Found a value that is not a number.
+; <pending tests>
