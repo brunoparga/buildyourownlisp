@@ -3,12 +3,15 @@ CFLAGS = -g -W -Wall -ggdb3 -std=c99
 LDFLAGS = -ledit -lm
 COMPILE = $(CC) -c $(CFLAGS) $< -o $@
 
-SOURCES = src/main.c src/calc.c src/eval.c src/expressionizer.c src/list.c src/parser.c src/repl.c src/value.c lib/mpc.o utils/read_file.c
-OBJECTS = src/main.c build/calc.o build/eval.o build/expressionizer.o build/list.o build/parser.o build/repl.o build/value.o build/read_file.o
-TARGET = build/lye
+SOURCES = src/main.c src/calc.c src/eval.c src/expressionizer.c src/list.c src/parser.c src/repl.c src/value.c lib/mpc.o utils/file.c
+OBJECTS = src/main.c build/calc.o build/eval.o build/expressionizer.o build/list.o build/parser.o build/repl.o build/value.o build/file.o
 
-$(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) -o $@ $(SOURCES) $(LDFLAGS)
+test: test/test.c build/lye
+	$(CC) $(CFLAGS) test/test.c -o build/test
+	./build/test
+
+build/lye: $(OBJECTS)
+	$(CC) $(CFLAGS) -o build/lye $(SOURCES) $(LDFLAGS)
 
 build/repl.o: src/repl.c src/repl.h build/parser.o
 	$(COMPILE)
@@ -31,15 +34,11 @@ build/list.o: src/list.c src/list.h build/value.o
 build/value.o: src/value.c src/value.h
 	$(COMPILE)
 
-build/read_file.o: utils/read_file.c utils/read_file.h
+build/file.o: utils/file.c utils/file.h
 	$(COMPILE)
-
-test: $(TARGET) test/test.c
-	$(CC) $(CFLAGS) test/test.c -o build/test
-	./build/test
 
 # I might want to delete this is it interferes with gdb
 .PHONY: clean
 
 clean:
-	@rm -f $(TARGET) build/test build/*.o
+	@rm -f build/lye build/test build/*.o
