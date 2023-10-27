@@ -17,7 +17,7 @@ static Value *builtin(Value *value, Symbol *function) {
     return builtin_eval(value);
   }
   if (strstr("+-*/^%", *function) || strcmp(*function, "max") == 0 ||
-      strcmp(*function, "min")) {
+      strcmp(*function, "min") == 0) {
     return builtin_op(value, function);
   }
 
