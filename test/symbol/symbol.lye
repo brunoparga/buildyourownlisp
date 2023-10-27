@@ -1,0 +1,15 @@
+; Can have an empty expression
+() ; Expect ()
+
+; Can have an expression being just a symbol
+% ; Expect %
+; They can be multi-character as well
+max ; Expect max
+
+; Also, you can unary-negate a number
+-100    ; Expect -100
+- 100   ; Expect -100
+(- 100) ; Expect -100
+
+; But operands need to make sense
+(/ ()) ; Expect Error: can only operate on numbers. Found a value that is not a number.
