@@ -6,10 +6,10 @@ static int is_integer(double x) {
   return difference > -epsilon && difference < epsilon;
 }
 
-void numeric_error(Value *x, Value *y, ErrorMsg message) {
+Value *numeric_error(Value *x, Value *y, ErrorMsg message) {
   delete_value(x);
   delete_value(y);
-  x = make_error(message);
+  return make_error(message);
 }
 
 /* Calculate numerical expressions */
@@ -44,13 +44,13 @@ Value *builtin_op(Value *value, Symbol *op) {
       result->number *= operand->number;
     } else if (IS_OP("/")) {
       if (operand->number == 0) {
-        numeric_error(result, operand, "cannot divide by zero.");
+        result = numeric_error(result, operand, "cannot divide by zero.");
         break;
       }
       result->number /= operand->number;
     } else if (IS_OP("%")) {
       if (operand->number == 0) {
-        numeric_error(result, operand, "modulus cannot be zero.");
+        result = numeric_error(result, operand, "modulus cannot be zero.");
         break;
       }
       if (is_integer(result->number) && is_integer(operand->number)) {
@@ -59,7 +59,7 @@ Value *builtin_op(Value *value, Symbol *op) {
         int_result %= int_operand;
         result->number = (double)int_result;
       } else {
-        numeric_error(result, operand, "operands of modulo must be integers.");
+        result = numeric_error(result, operand, "operands of modulo must be integers.");
         break;
       }
     } else if (IS_OP("^")) {
