@@ -1,10 +1,16 @@
+#define _GNU_SOURCE
+
 #include <err.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "../utils/file.c"
 
 #define GREEN(text) "\e[1;32m" text "\e[0m"
 #define RED(text) "\e[1;31m" text "\e[0m"
+
+int successes = 0;
+int failures = 0;
 
 static inline int is_test(char *path) {
   char *extension = strrchr(path, '.');
@@ -43,10 +49,46 @@ static inline char *get_result(char *tmp_file) {
   return result;
 }
 
-static void run_test(char *test_filename, char *result_file, int *successes,
-                     int *failures) {
+static void run_test(char *line, int line_number, char *test_filename,
+                     char *result_filename) {
+  // Read the test from the test line
+  size_t semicolon_position = strcspn(line, ";");
+
+  // Run the test if the line is not just a comment
+  if (semicolon_position > 0) {
+    // Get the expected result
+    char *expected = get_expected(line);
+
+    // Get the actual test
+    line[semicolon_position] = '\0';
+
+    // Write to a file that we can read
+    freopen(result_filename, "w+", stdout);
+
+    // Run the test, leaving the result in the temporary file
+    char command[100];
+    system(build_command(line, command));
+
+    // Reset the Lye command for the next test run
+    memset(command, 0, strlen(command));
+
+    // Read the actual result from the temporary file
+    char *result = get_result(result_filename);
+
+    // Increment the success or failure count and print failure
+    if (strcmp(result, expected) == 0) {
+      successes += 1;
+    } else {
+      failures += 1;
+      freopen("/dev/tty", "w", stdout);
+      printf("(%s:%d) " RED("Fail") ": expected %s but got %s.\n",
+             test_filename + 7, line_number, expected, result);
+    }
+  }
+}
+
+static void run_test_file(char *test_filename, char *result_filename) {
   // Call the Lye executable on a given test file
-  char command[100];
   FILE *test_file = fopen(test_filename, "r");
 
   if (test_file == NULL) {
@@ -55,45 +97,17 @@ static void run_test(char *test_filename, char *result_file, int *successes,
 
   char *line = NULL;
   size_t length = 0;
+  int line_number = 0;
 
   while ((getline(&line, &length, test_file)) != -1) {
+    line_number++;
     if (strcmp(line, "\n") == 0) { // Empty lines in the test file
       continue;
     }
-    // Read the test from the test line
-    size_t semicolon_position = strcspn(line, ";");
-    char test[semicolon_position];
-    memcpy(test, line, semicolon_position);
-    test[semicolon_position] = '\0';
 
-    // Run the test if the line is not just a comment
-    if (semicolon_position > 0) {
-      freopen(result_file, "w+", stdout);
-
-      // Get the expected result
-      char *expected = get_expected(line);
-
-      // Run the test, leaving the result in the temporary file
-      char *foo = build_command(test, command);
-      system(foo);
-      memset(command, 0, strlen(command));
-
-      // Read the actual result from the temporary file
-      char *result = get_result(result_file);
-
-      // Increment the success or failure count and print failure
-      if (strcmp(result, expected) == 0) {
-        *successes += 1;
-      } else {
-        *failures += 1;
-        freopen("/dev/tty", "w", stdout);
-        printf("(%s) " RED("Fail") ": expected %s but got %s.\n",
-               test_filename + 7, expected, result);
-      }
-    }
+    run_test(line, line_number, test_filename, result_filename);
   }
 
-  freopen("/dev/tty", "w", stdout);
   // Clean up
   fclose(test_file);
   if (line) {
@@ -102,33 +116,25 @@ static void run_test(char *test_filename, char *result_file, int *successes,
 }
 
 int main(void) {
-  char *result_file = "./test/test.tmp";
+  char *result_filename = "./test/test.tmp";
   FTS *test_dir = open_dir("./test");
   FTSENT *subdir;
 
-  int successes;
-  int *succ_ptr = &successes;
-  *succ_ptr = 0;
-
-  int failures;
-  int *fail_ptr = &failures;
-  *fail_ptr = 0;
-
   while ((subdir = fts_read(test_dir)) != NULL) {
     if (subdir->fts_info == FTS_F && is_test(subdir->fts_path)) {
-      run_test(subdir->fts_path, result_file, succ_ptr, fail_ptr);
+      run_test_file(subdir->fts_path, result_filename);
     }
   }
 
   int total = successes + failures;
+  freopen("/dev/tty", "w", stdout);
   if (failures == 0) {
-    printf("Ran " GREEN("%d") " tests, all passed. Hooray!\n",
-           total);
+    printf("Ran " GREEN("%d") " tests, all passed. Hooray!\n", total);
   } else {
     printf("Ran %d tests, " GREEN("%d") " passed, " RED("%d") " failed.\n",
            total, successes, failures);
   }
 
-  remove(result_file);
+  remove(result_filename);
   return 0;
 }
