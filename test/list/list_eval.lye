@@ -1,0 +1,23 @@
+; `list` converts S-Expressions into Q-Expressions
+list 1 2 3 4 ; Expect {1 2 3 4}
+
+; Without arguments, it is just a Symbol that returns itself
+list ; Expect list
+
+; A list can contain a Symbol
+list eval ; Expect {eval}
+
+; The S-Expression is evaluated first
+list (+ 1 2 3) ; Expect {6}
+
+; `eval` evaluates Q-Expressions as S-Expressions
+eval {list (+ 1 2 3)} ; Expect {6}
+
+; It only takes a single argument
+eval list + 1 2 3 ; Expect Error: function 'eval' passed too many arguments.
+
+; Its argument must be a list (Q-Expr)
+eval (+ 1 2 3) ; Expect Error: function 'eval' passed incorrect types.
+
+; The resulting S-Expression must start with a symbol, for meaningful evaluation
+eval {1 2} ; Expect Error: S-expression does not start with a symbol.

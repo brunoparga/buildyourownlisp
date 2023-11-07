@@ -1,6 +1,7 @@
 #include "list.h"
 
 #include "eval.h"
+#include "value.h"
 
 #define LIST_ASSERT(list, condition, error_message)                            \
   if (!(condition)) {                                                          \
@@ -23,11 +24,10 @@ Value *builtin_head(Value *value) {
   ASSERT_ONE_ARG(value, "function 'head' passed too many arguments.")
   LIST_ASSERT(value, IS_QEXPR(element_at(value, 0)),
               "function 'head' passed incorrect type.")
-  ASSERT_CONTAINS_VALUES(value,
-                         "function 'head' passed invalid empty list.")
+  ASSERT_CONTAINS_VALUES(value, "function 'head' passed invalid empty list.")
 
-  /* Otherwise take the first argument. */
-  Value *result = take_value(value, 0);
+  /* Otherwise take the first element. */
+  Value *result = take_value(value, 0)->sexpr.cell[0];
 
   /* Delete all elements that are not head and return */
   while (result->sexpr.count > 1) {
@@ -42,8 +42,7 @@ Value *builtin_tail(Value *value) {
   ASSERT_ONE_ARG(value, "function 'tail' passed too many arguments.")
   LIST_ASSERT(value, IS_QEXPR(element_at(value, 0)),
               "function 'tail' passed incorrect type.")
-  ASSERT_CONTAINS_VALUES(value,
-                         "function 'tail' passed invalid empty list.")
+  ASSERT_CONTAINS_VALUES(value, "function 'tail' passed invalid empty list.")
 
   /* Take first argument */
   Value *result = take_value(value, 0);
@@ -59,10 +58,19 @@ Value *builtin_join(Value *value) {
                 "function 'join' passed incorrect type.")
   }
 
+  // Build result from the first list contained in the sexpr argument
   Value *result = pop(value);
 
+  // As long as there are other lists
   while (count(value) > 0) {
-    result = append_value(result, pop(value));
+    // and elements in the first list
+    while (count(value->sexpr.cell[0]) > 0) {
+      // append the first element of the first list to the result
+      Value *next = pop(value->sexpr.cell[0]);
+      result = append_value(result, next);
+    }
+    // We pop from the S-expr the Q-expr being appended, which is now empty
+    pop(value);
   }
 
   delete_value(value);

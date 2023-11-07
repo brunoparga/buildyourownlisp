@@ -1,0 +1,4 @@
+; Literal Q-Expressions are just returned as-is
+{} ; Expect {}
+{1 2 3} ; Expect {1 2 3}
+{+ 10 20} ; Expect {+ 10 20}
