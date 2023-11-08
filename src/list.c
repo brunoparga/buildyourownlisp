@@ -3,16 +3,30 @@
 #include "eval.h"
 #include "value.h"
 
-#define LIST_ASSERT(list, condition, error_message)                            \
+#define LIST_ASSERT(list, condition, function, error_message)                  \
   if (!(condition)) {                                                          \
     delete_value(list);                                                        \
-    return make_error(error_message);                                          \
+    return make_error(ERROR_MESSAGE(function, error_message));                 \
   }
 
-#define ASSERT_ONE_ARG(list, error_message)                                    \
-  LIST_ASSERT(list, count(list) == 1, error_message)
-#define ASSERT_CONTAINS_VALUES(list, error_message)                            \
-  LIST_ASSERT(list, count(element_at(list, 0)) > 0, error_message)
+#define ERROR_MESSAGE(function_name, message)                                  \
+  "function '" #function_name "' must be passed " #message
+
+#define ASSERT_ARGC(list, argc, function, error_message)                       \
+  LIST_ASSERT(list, count(list) == argc, function,                             \
+              ERROR_MESSAGE(function_name, error_message))
+
+#define ASSERT_ONE_ARG(list, function)                                         \
+  ASSERT_ARGC(list, 1, function, "exactly one argument.")
+#define ASSERT_TWO_ARGS(list, function)                                        \
+  ASSERT_ARGC(list, 2, function, "exactly two arguments.")
+
+#define ASSERT_IS_LIST(list, index, function)                                  \
+  LIST_ASSERT(list, IS_QEXPR(element_at(list, index)), function,               \
+              ERROR_MESSAGE(function, "a list."))
+#define ASSERT_CONTAINS_VALUES(list, function)                                 \
+  LIST_ASSERT(list, count(element_at(list, 0)) > 0, function,                  \
+              ERROR_MESSAGE(function, "a list with at least one element."))
 
 Value *builtin_list(Value *value) {
   value->type = QEXPR;
@@ -21,10 +35,10 @@ Value *builtin_list(Value *value) {
 
 Value *builtin_head(Value *value) {
   /* Check error conditions */
-  ASSERT_ONE_ARG(value, "function 'head' passed too many arguments.")
-  LIST_ASSERT(value, IS_QEXPR(element_at(value, 0)),
-              "function 'head' passed incorrect type.")
-  ASSERT_CONTAINS_VALUES(value, "function 'head' passed invalid empty list.")
+  char *function = "head";
+  ASSERT_ONE_ARG(value, function)
+  ASSERT_IS_LIST(value, 0, function)
+  ASSERT_CONTAINS_VALUES(value, function)
 
   /* Otherwise take the first element. */
   Value *result = take_value(value, 0)->sexpr.cell[0];
@@ -39,10 +53,10 @@ Value *builtin_head(Value *value) {
 
 Value *builtin_tail(Value *value) {
   /* Check error conditions */
-  ASSERT_ONE_ARG(value, "function 'tail' passed too many arguments.")
-  LIST_ASSERT(value, IS_QEXPR(element_at(value, 0)),
-              "function 'tail' passed incorrect type.")
-  ASSERT_CONTAINS_VALUES(value, "function 'tail' passed invalid empty list.")
+  char *function = "tail";
+  ASSERT_ONE_ARG(value, function)
+  ASSERT_IS_LIST(value, 0, function)
+  ASSERT_CONTAINS_VALUES(value, function)
 
   /* Take first argument */
   Value *result = take_value(value, 0);
@@ -54,8 +68,7 @@ Value *builtin_tail(Value *value) {
 
 Value *builtin_join(Value *value) {
   for (int index = 0; index < count(value); index++) {
-    LIST_ASSERT(value, IS_QEXPR(element_at(value, index)),
-                "function 'join' passed incorrect type.")
+    ASSERT_IS_LIST(value, index, "join")
   }
 
   // Build result from the first list contained in the sexpr argument
@@ -78,9 +91,9 @@ Value *builtin_join(Value *value) {
 }
 
 Value *builtin_eval(Value *value) {
-  ASSERT_ONE_ARG(value, "function 'eval' passed too many arguments.")
-  LIST_ASSERT(value, IS_QEXPR(element_at(value, 0)),
-              "function 'eval' passed incorrect types.")
+  char *function = "eval";
+  ASSERT_ONE_ARG(value, function)
+  ASSERT_IS_LIST(value, 0, function)
 
   Value *sexpr = take_value(value, 0);
   sexpr->type = SEXPR;
