@@ -7,5 +7,5 @@ join {list} {head} {tail} {eval} ; Expect {list head tail eval}
 join {} {{} {{}}} ; Expect {{} {{}}}
 
 ; It cannot operate on things that are not lists
-join {1 2} 3 ; Expect Error: function 'join' passed incorrect type.
-join 1 {2 3} ; Expect Error: function 'join' passed incorrect type.
+join {1 2} 3 ; Expect Error: function 'join' must be passed a list.
+join 1 {2 3} ; Expect Error: function 'join' must be passed a list.

@@ -10,23 +10,29 @@
   }
 
 #define ERROR_MESSAGE(function_name, message)                                  \
-  "function '" #function_name "' must be passed " #message
+  "function '" function_name "' must be passed " message
 
 #define ASSERT_ARGC(list, argc, function, error_message)                       \
-  LIST_ASSERT(list, count(list) == argc, function,                             \
-              ERROR_MESSAGE(function_name, error_message))
+  LIST_ASSERT(list, count(list) == argc, function, error_message)
 
 #define ASSERT_ONE_ARG(list, function)                                         \
-  ASSERT_ARGC(list, 1, function, "exactly one argument.")
+  do {                                                                         \
+    ASSERT_ARGC(list, 1, function, "exactly one argument.")                    \
+  } while (0)
 #define ASSERT_TWO_ARGS(list, function)                                        \
-  ASSERT_ARGC(list, 2, function, "exactly two arguments.")
+  do {                                                                         \
+    ASSERT_ARGC(list, 2, function, "exactly two arguments.")                   \
+  } while (0)
 
 #define ASSERT_IS_LIST(list, index, function)                                  \
-  LIST_ASSERT(list, IS_QEXPR(element_at(list, index)), function,               \
-              ERROR_MESSAGE(function, "a list."))
+  do {                                                                         \
+    LIST_ASSERT(list, IS_QEXPR(element_at(list, index)), function, "a list.")  \
+  } while (0)
 #define ASSERT_CONTAINS_VALUES(list, function)                                 \
-  LIST_ASSERT(list, count(element_at(list, 0)) > 0, function,                  \
-              ERROR_MESSAGE(function, "a list with at least one element."))
+  do {                                                                         \
+    LIST_ASSERT(list, count(element_at(list, 0)) > 0, function,                \
+                "a list with at least one element.")                           \
+  } while (0)
 
 Value *builtin_list(Value *value) {
   value->type = QEXPR;
@@ -35,10 +41,9 @@ Value *builtin_list(Value *value) {
 
 Value *builtin_head(Value *value) {
   /* Check error conditions */
-  char *function = "head";
-  ASSERT_ONE_ARG(value, function)
-  ASSERT_IS_LIST(value, 0, function)
-  ASSERT_CONTAINS_VALUES(value, function)
+  ASSERT_ONE_ARG(value, "head");
+  ASSERT_IS_LIST(value, 0, "head");
+  ASSERT_CONTAINS_VALUES(value, "head");
 
   /* Otherwise take the first element. */
   Value *result = take_value(value, 0)->sexpr.cell[0];
@@ -53,10 +58,9 @@ Value *builtin_head(Value *value) {
 
 Value *builtin_tail(Value *value) {
   /* Check error conditions */
-  char *function = "tail";
-  ASSERT_ONE_ARG(value, function)
-  ASSERT_IS_LIST(value, 0, function)
-  ASSERT_CONTAINS_VALUES(value, function)
+  ASSERT_ONE_ARG(value, "tail");
+  ASSERT_IS_LIST(value, 0, "tail");
+  ASSERT_CONTAINS_VALUES(value, "tail");
 
   /* Take first argument */
   Value *result = take_value(value, 0);
@@ -68,7 +72,7 @@ Value *builtin_tail(Value *value) {
 
 Value *builtin_join(Value *value) {
   for (int index = 0; index < count(value); index++) {
-    ASSERT_IS_LIST(value, index, "join")
+    ASSERT_IS_LIST(value, index, "join");
   }
 
   // Build result from the first list contained in the sexpr argument
@@ -91,9 +95,8 @@ Value *builtin_join(Value *value) {
 }
 
 Value *builtin_eval(Value *value) {
-  char *function = "eval";
-  ASSERT_ONE_ARG(value, function)
-  ASSERT_IS_LIST(value, 0, function)
+  ASSERT_ONE_ARG(value, "eval");
+  ASSERT_IS_LIST(value, 0, "eval");
 
   Value *sexpr = take_value(value, 0);
   sexpr->type = SEXPR;

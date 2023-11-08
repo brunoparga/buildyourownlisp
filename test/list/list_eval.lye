@@ -14,10 +14,10 @@ list (+ 1 2 3) ; Expect {6}
 eval {list (+ 1 2 3)} ; Expect {6}
 
 ; It only takes a single argument
-eval list + 1 2 3 ; Expect Error: function 'eval' passed too many arguments.
+eval list + 1 2 3 ; Expect Error: function 'eval' must be passed exactly one argument.
 
 ; Its argument must be a list (Q-Expr)
-eval (+ 1 2 3) ; Expect Error: function 'eval' passed incorrect types.
+eval (+ 1 2 3) ; Expect Error: function 'eval' must be passed a list.
 
 ; The resulting S-Expression must start with a symbol, for meaningful evaluation
-eval {1 2} ; Expect Error: S-expression does not start with a symbol.
+eval {1 2} ; Expect Error: S-expression must start with a symbol.
