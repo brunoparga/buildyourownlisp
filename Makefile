@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Og -g -Wextra -Wall -ggdb3 -std=c99
+CFLAGS = -Og -g -Wextra -Wall -ggdb3 -std=c99 -fsanitize=address
 LDFLAGS = -ledit -lm
 COMPILE = $(CC) -c $(CFLAGS) $< -o $@
 
