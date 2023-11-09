@@ -102,3 +102,28 @@ Value *builtin_eval(Value *value) {
   sexpr->type = SEXPR;
   return evaluate(sexpr);
 }
+
+Value *builtin_cons(Value *value) {
+  ASSERT_TWO_ARGS(value, "cons");
+  ASSERT_IS_LIST(value, 1, "cons");
+
+  Value *new_element = element_at(value, 0);
+  Value *list = element_at(value, 1);
+
+  /* Set new size of Q-expr */
+  list->sexpr.count++;
+
+  /* Allocate larger memory */
+  list->sexpr.cell = realloc(list->sexpr.cell, sizeof(Value *) * count(list));
+
+  /* Shift the list one element to the right */
+  for (int index = count(list) - 1; index > 0; index--) {
+    list->sexpr.cell[index] = list->sexpr.cell[index - 1];
+  }
+
+  /* Set the correct pointers */
+  list->sexpr.cell[0] = new_element;
+  value = list;
+
+  return value;
+}

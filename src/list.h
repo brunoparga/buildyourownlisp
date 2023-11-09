@@ -8,5 +8,6 @@ Value *builtin_head(Value *value);
 Value *builtin_tail(Value *value);
 Value *builtin_join(Value *value);
 Value *builtin_eval(Value *value);
+Value *builtin_cons(Value *value);
 
 #endif

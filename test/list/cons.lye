@@ -1,0 +1,13 @@
+; Prepend a value to a list
+cons 1 {2 3} ; Expect {1 2 3}
+cons tail {head list} ; Expect {tail head list}
+cons {1 2 3 4} {5 6 7} ; Expect {{1 2 3 4} 5 6 7}
+cons 7 {} ; Expect {7}
+
+; Must take exactly two arguments
+cons 0 ; Expect Error: function 'cons' must be passed exactly two arguments.
+cons 1 {2 3 4} {3 5 7 9} ; Expect Error: function 'cons' must be passed exactly two arguments.
+
+; The second argument must be a list
+cons 0 1 ; Expect Error: function 'cons' must be passed a list.
+cons {1 2 3 4} 5 ; Expect Error: function 'cons' must be passed a list.

@@ -16,6 +16,9 @@ static Value *builtin(Value *value, Symbol *function) {
   if (strcmp("eval", *function) == 0) {
     return builtin_eval(value);
   }
+  if (strcmp("cons", *function) == 0) {
+    return builtin_cons(value);
+  }
   if (strstr("+-*/^%", *function) || strcmp(*function, "max") == 0 ||
       strcmp(*function, "min") == 0) {
     return builtin_op(value, function);
@@ -48,7 +51,7 @@ static Value *evaluate_sexpr(Value *value) {
   if (!IS_SYMBOL(first)) {
     delete_value(first);
     delete_value(value);
-    return make_error("S-expression does not start with a symbol.");
+    return make_error("S-expression must start with a symbol.");
   }
 
   /* Pass operator for calculation */
