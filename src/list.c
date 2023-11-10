@@ -127,3 +127,12 @@ Value *builtin_cons(Value *value) {
 
   return value;
 }
+
+Value *builtin_length(Value *value) {
+  ASSERT_ONE_ARG(value, "length");
+  ASSERT_IS_LIST(value, 0, "length");
+
+  /* What we want is the Q-expr contained within this S-expr */
+  Value *list = value->sexpr.cell[0];
+  return make_number((double)count(list));
+}

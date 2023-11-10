@@ -1,0 +1,10 @@
+; `length` returns the length of a list
+length {} ; Expect 0
+length {6.28} ; Expect 1
+length {1 2 3 4 5} ; Expect 5
+
+; It can only operate on lists
+length 5 ; Expect Error: function 'length' must be passed a list.
+
+; But only one at a time
+length {1 2} {3 4 5} ; Expect Error: function 'length' must be passed exactly one argument.

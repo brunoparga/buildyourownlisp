@@ -19,6 +19,9 @@ static Value *builtin(Value *value, Symbol *function) {
   if (strcmp("cons", *function) == 0) {
     return builtin_cons(value);
   }
+  if (strcmp("length", *function) == 0) {
+    return builtin_length(value);
+  }
   if (strstr("+-*/^%", *function) || strcmp(*function, "max") == 0 ||
       strcmp(*function, "min") == 0) {
     return builtin_op(value, function);
