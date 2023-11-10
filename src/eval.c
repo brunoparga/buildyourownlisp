@@ -22,6 +22,9 @@ static Value *builtin(Value *value, Symbol *function) {
   if (strcmp("length", *function) == 0) {
     return builtin_length(value);
   }
+  if (strcmp("reverse", *function) == 0) {
+    return builtin_reverse(value);
+  }
   if (strstr("+-*/^%", *function) || strcmp(*function, "max") == 0 ||
       strcmp(*function, "min") == 0) {
     return builtin_op(value, function);

@@ -136,3 +136,20 @@ Value *builtin_length(Value *value) {
   Value *list = value->sexpr.cell[0];
   return make_number((double)count(list));
 }
+
+Value *builtin_reverse(Value *value) {
+  ASSERT_ONE_ARG(value, "reverse");
+  ASSERT_IS_LIST(value, 0, "reverse");
+
+  Value *list = element_at(value, 0);
+  int length = count(list);
+
+  for (int index = 0; index < length / 2; index++) {
+    Value *tmp = list->sexpr.cell[index];
+    list->sexpr.cell[index] = list->sexpr.cell[length - index - 1];
+    list->sexpr.cell[length - index - 1] = tmp;
+  }
+
+  free(value);
+  return list;
+}
