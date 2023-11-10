@@ -11,5 +11,6 @@ Value *builtin_eval(Value *value);
 Value *builtin_cons(Value *value);
 Value *builtin_length(Value *value);
 Value *builtin_reverse(Value *value);
+Value *builtin_init(Value *value);
 
 #endif

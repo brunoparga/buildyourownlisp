@@ -153,3 +153,14 @@ Value *builtin_reverse(Value *value) {
   free(value);
   return list;
 }
+
+Value *builtin_init(Value *value) {
+  ASSERT_ONE_ARG(value, "init");
+  ASSERT_IS_LIST(value, 0, "init");
+  ASSERT_CONTAINS_VALUES(value, "init");
+
+  Value *list = element_at(value, 0);
+  pop_value(list, count(list) - 1);
+
+  return list;
+}

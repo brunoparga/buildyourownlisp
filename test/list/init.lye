@@ -1,0 +1,12 @@
+; Returns a list of all the elements but the last
+init {1 2 3 4} ; Expect {1 2 3}
+init {0} ; Expect {}
+
+; It must be passed a list with at least one argument
+init {} ; Expect Error: function 'init' must be passed a list with at least one element.
+
+; It only works if the argument is a list
+init 6 ; Expect Error: function 'init' must be passed a list.
+
+; It must take exactly one argument
+init {1 2 3} {4 5 6} {{7} {8} {9}} ; Expect Error: function 'init' must be passed exactly one argument.
