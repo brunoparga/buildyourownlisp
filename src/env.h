@@ -3,6 +3,9 @@
 
 #include <stdlib.h>
 #include <string.h>
+
+#include "calc.h"
+#include "list.h"
 #include "value.h"
 
 typedef struct Env {
@@ -18,5 +21,9 @@ void delete_env(Env *env);
 /* Store and retrieve */
 Value *get_value(Env *env, Value *key);
 void put_value(Env *env, Value *key, Value *value);
+
+/* Register language built-ins */
+void register_builtin(Env *env, Symbol name, Builtin function);
+void register_builtins(Env *env);
 
 #endif

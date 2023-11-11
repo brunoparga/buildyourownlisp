@@ -13,7 +13,7 @@ Value *numeric_error(Value *x, Value *y, ErrorMsg message) {
 }
 
 /* Calculate numerical expressions */
-Value *builtin_op(Value *value, Symbol *op) {
+static Value *builtin_op(Value *value, char *op) {
   /* Ensure all arguments are numbers */
   for (int index = 0; index < count(value); index++) {
     if (!IS_NUMBER(element_at(value, index))) {
@@ -25,7 +25,7 @@ Value *builtin_op(Value *value, Symbol *op) {
 
   Value *result = pop(value);
 
-#define IS_OP(str) (strcmp(*op, str) == 0)
+#define IS_OP(str) (strcmp(op, str) == 0)
 
   /* Check for unary negation */
   if (IS_OP("-") && count(value) == 0) {
@@ -84,4 +84,29 @@ Value *builtin_op(Value *value, Symbol *op) {
 
   delete_value(value);
   return result;
+}
+
+Value *builtin_add(__attribute__ ((unused)) Env *env, Value *value) {
+  return builtin_op(value, "+");
+}
+Value *builtin_subtract(__attribute__ ((unused)) Env *env, Value *value) {
+  return builtin_op(value, "-");
+}
+Value *builtin_multiply(__attribute__ ((unused)) Env *env, Value *value) {
+  return builtin_op(value, "*");
+}
+Value *builtin_divide(__attribute__ ((unused)) Env *env, Value *value) {
+  return builtin_op(value, "/");
+}
+Value *builtin_modulo(__attribute__ ((unused)) Env *env, Value *value) {
+  return builtin_op(value, "%");
+}
+Value *builtin_exp(__attribute__ ((unused)) Env *env, Value *value) {
+  return builtin_op(value, "^");
+}
+Value *builtin_min(__attribute__ ((unused)) Env *env, Value *value) {
+  return builtin_op(value, "min");
+}
+Value *builtin_max(__attribute__ ((unused)) Env *env, Value *value) {
+  return builtin_op(value, "max");
 }

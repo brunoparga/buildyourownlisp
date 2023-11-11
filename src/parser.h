@@ -22,7 +22,7 @@ typedef struct Parser {
 } Parser;
 
 Parser *create_parser();
-Value *parse(Parser *parser, char *input);
+Value *parse(Env *env, Parser *parser, char *input);
 void cleanup_parser(Parser *parser);
 
 #endif

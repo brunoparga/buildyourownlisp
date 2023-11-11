@@ -3,8 +3,8 @@ CFLAGS = -Og -g -Wextra -Wall -ggdb3 -std=c99
 LDFLAGS = -ledit -lm
 COMPILE = $(CC) -c $(CFLAGS) $< -o $@
 
-SOURCES = src/main.c src/calc.c src/eval.c src/expressionizer.c src/list.c src/parser.c src/repl.c src/value.c lib/mpc.o utils/file.c
-OBJECTS = src/main.c build/calc.o build/eval.o build/expressionizer.o build/list.o build/parser.o build/repl.o build/value.o build/file.o
+SOURCES = src/main.c src/calc.c src/env.c src/eval.c src/expressionizer.c src/list.c src/parser.c src/repl.c src/value.c lib/mpc.o utils/file.c
+OBJECTS = src/main.c build/calc.o build/env.o build/eval.o build/expressionizer.o build/list.o build/parser.o build/repl.o build/value.o build/file.o
 
 test: test/test.c build/lye
 	$(CC) $(CFLAGS) test/test.c -o build/test
@@ -19,7 +19,7 @@ build/repl.o: src/repl.c src/repl.h build/parser.o
 build/parser.o: src/parser.c src/parser.h build/eval.o build/value.o lib/mpc.o
 	$(COMPILE)
 
-build/eval.o: src/eval.c src/eval.h build/calc.o build/list.o build/value.o
+build/eval.o: src/eval.c src/eval.h build/env.o build/calc.o build/list.o build/value.o
 	$(COMPILE)
 
 build/expressionizer.o: src/expressionizer.c src/expressionizer.h lib/mpc.o build/value.o
@@ -29,6 +29,9 @@ build/calc.o: src/calc.c src/calc.h build/value.o
 	$(COMPILE)
 
 build/list.o: src/list.c src/list.h build/value.o
+	$(COMPILE)
+
+build/env.o: src/env.c src/env.h build/calc.o build/list.o build/value.o
 	$(COMPILE)
 
 build/value.o: src/value.c src/value.h

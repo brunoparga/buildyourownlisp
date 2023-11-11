@@ -1,26 +1,31 @@
 #include "../utils/file.h"
+
+#include "env.h"
 #include "repl.h"
 
-static void run_file(Parser *parser, char *filename) {
+static void run_file(Env *env, Parser *parser, char *filename) {
   char *source = read_file(filename);
-  run_string(parser, source);
+  run_string(env, parser, source);
   free(source);
 }
 
 int main(int argc, char **argv) {
   Parser *parser = create_parser();
+  Env *environment = make_env();
+  register_builtins(environment);
+
   if (argc == 1) {
     puts("Lye Version 0.0.0.4");
     puts("Press Ctrl+c to Exit\n");
-    repl(parser);
+    repl(environment, parser);
   } else if (argc == 2) {
-    run_file(parser, argv[1]);
+    run_file(environment, parser, argv[1]);
   } else if (argc == 3 && strcmp(argv[1], "-s") == 0) {
-    run_string(parser, argv[2]);
+    run_string(environment, parser, argv[2]);
   }
-  // This might be a memory leak - the parser never really gets cleaned
-  // up because the program exits before that. I'll have to trap the
-  // signal from Ctrl+C to deal with that?
+
   cleanup_parser(parser);
+  delete_env(environment);
+
   return 0;
 }

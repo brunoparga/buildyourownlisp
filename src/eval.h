@@ -2,9 +2,10 @@
 #define lye_eval_h
 
 #include "calc.h"
+#include "env.h"
 #include "list.h"
 #include "value.h"
 
-Value *evaluate(Value *value);
+Value *evaluate(Env *env, Value *value);
 
 #endif

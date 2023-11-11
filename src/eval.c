@@ -1,46 +1,9 @@
 #include "eval.h"
 
-static Value *builtin(Value *value, Symbol *function) {
-  if (strcmp("list", *function) == 0) {
-    return builtin_list(value);
-  }
-  if (strcmp("head", *function) == 0) {
-    return builtin_head(value);
-  }
-  if (strcmp("tail", *function) == 0) {
-    return builtin_tail(value);
-  }
-  if (strcmp("join", *function) == 0) {
-    return builtin_join(value);
-  }
-  if (strcmp("eval", *function) == 0) {
-    return builtin_eval(value);
-  }
-  if (strcmp("cons", *function) == 0) {
-    return builtin_cons(value);
-  }
-  if (strcmp("length", *function) == 0) {
-    return builtin_length(value);
-  }
-  if (strcmp("reverse", *function) == 0) {
-    return builtin_reverse(value);
-  }
-  if (strcmp("init", *function) == 0) {
-    return builtin_init(value);
-  }
-  if (strstr("+-*/^%", *function) || strcmp(*function, "max") == 0 ||
-      strcmp(*function, "min") == 0) {
-    return builtin_op(value, function);
-  }
-
-  delete_value(value);
-  return make_error("undefined function.");
-}
-
-static Value *evaluate_sexpr(Value *value) {
+static Value *evaluate_sexpr(Env *env, Value *value) {
   /* Evaluate children */
   for (int index = 0; index < count(value); index++) {
-    value->sexpr.cell[index] = evaluate(element_at(value, index));
+    value->sexpr.cell[index] = evaluate(env, element_at(value, index));
     if (IS_ERROR(element_at(value, index))) {
       return take_value(value, index);
     }
@@ -55,26 +18,33 @@ static Value *evaluate_sexpr(Value *value) {
     return take_value(value, 0);
   }
 
-  /* Ensure first element is a Symbol */
+  /* Ensure first element is a function after evaluation */
   Value *first = pop(value);
-  if (!IS_SYMBOL(first)) {
+  if (!IS_FUNCTION(first)) {
     delete_value(first);
     delete_value(value);
-    return make_error("S-expression must start with a symbol.");
+    return make_error("S-expression must start with a function.");
   }
 
-  /* Pass operator for calculation */
-  Value *result = builtin(value, &first->symbol);
+  /* Call function */
+  Value *result = first->function(env, value);
   delete_value(first);
   return result;
 }
 
-Value *evaluate(Value *value) {
-  /* Evaluate S-expressions */
-  if (IS_SEXPR(value)) {
-    return evaluate_sexpr(value);
+Value *evaluate(Env *env, Value *value) {
+  switch (value->type) {
+  case SYMBOL: {
+    /* Variable access */
+    Value *variable = get_value(env, value);
+    delete_value(value);
+    return variable;
   }
-
-  /* All other Value types remain the same */
-  return value;
+  case SEXPR:
+    /* Expand S-expressions */
+    return evaluate_sexpr(env, value);
+  default:
+    /* All other Value types remain the same */
+    return value;
+  }
 }

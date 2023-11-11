@@ -26,7 +26,7 @@ void add_history(char *unused) {}
 
 #include "parser.h"
 
-void run_string(Parser *parser, char *source);
-void repl(Parser *parser);
+void run_string(Env *env, Parser *parser, char *source);
+void repl(Env *env, Parser *parser);
 
 #endif

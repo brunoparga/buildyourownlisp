@@ -1,5 +1,4 @@
 #include "env.h"
-#include "value.h"
 
 Env *make_env() {
   Env *env = malloc(sizeof(Env));
@@ -34,7 +33,7 @@ Value *get_value(Env *env, Value *key) {
   }
 
   /* If no matching key found, return an error */
-  return make_error("no such key found.");
+  return make_error("this symbol was not found to be bound to a value.");
 }
 
 void put_value(Env *env, Value *key, Value *value) {
@@ -63,4 +62,37 @@ void put_value(Env *env, Value *key, Value *value) {
   env->keys[env->count - 1] = malloc(strlen(key->symbol) + 1);
   strcpy(env->keys[env->count - 1], key->symbol);
   env->values[env->count - 1] = copy_value(value);
+}
+
+/* Make the given built-in available for any Lye program */
+void register_builtin(Env *env, Symbol name, Builtin builtin) {
+  Value *key = make_symbol(name);
+  Value *function = make_function(builtin);
+  put_value(env, key, function);
+  delete_value(key);
+  delete_value(function);
+}
+
+/* Register the set of built-ins */
+void register_builtins(Env *env) {
+  /* List operations */
+  register_builtin(env, "list", builtin_list);
+  register_builtin(env, "head", builtin_head);
+  register_builtin(env, "tail", builtin_tail);
+  register_builtin(env, "join", builtin_join);
+  register_builtin(env, "eval", builtin_eval);
+  register_builtin(env, "cons", builtin_cons);
+  register_builtin(env, "length", builtin_length);
+  register_builtin(env, "reverse", builtin_reverse);
+  register_builtin(env, "init", builtin_init);
+
+  /* Arithmetical operations*/
+  register_builtin(env, "+", builtin_add);
+  register_builtin(env, "-", builtin_subtract);
+  register_builtin(env, "*", builtin_multiply);
+  register_builtin(env, "/", builtin_divide);
+  register_builtin(env, "%", builtin_modulo);
+  register_builtin(env, "^", builtin_exp);
+  register_builtin(env, "min", builtin_min);
+  register_builtin(env, "max", builtin_max);
 }

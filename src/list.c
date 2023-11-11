@@ -34,12 +34,12 @@
                 "a list with at least one element.")                           \
   } while (0)
 
-Value *builtin_list(Value *value) {
+Value *builtin_list(__attribute__ ((unused)) Env *env, Value *value) {
   value->type = QEXPR;
   return value;
 }
 
-Value *builtin_head(Value *value) {
+Value *builtin_head(__attribute__ ((unused)) Env *env, Value *value) {
   /* Check error conditions */
   ASSERT_ONE_ARG(value, "head");
   ASSERT_IS_LIST(value, 0, "head");
@@ -56,7 +56,7 @@ Value *builtin_head(Value *value) {
   return result;
 }
 
-Value *builtin_tail(Value *value) {
+Value *builtin_tail(__attribute__ ((unused)) Env *env, Value *value) {
   /* Check error conditions */
   ASSERT_ONE_ARG(value, "tail");
   ASSERT_IS_LIST(value, 0, "tail");
@@ -70,7 +70,7 @@ Value *builtin_tail(Value *value) {
   return result;
 }
 
-Value *builtin_join(Value *value) {
+Value *builtin_join(__attribute__ ((unused)) Env *env, Value *value) {
   for (int index = 0; index < count(value); index++) {
     ASSERT_IS_LIST(value, index, "join");
   }
@@ -94,16 +94,16 @@ Value *builtin_join(Value *value) {
   return result;
 }
 
-Value *builtin_eval(Value *value) {
+Value *builtin_eval(Env *env, Value *value) {
   ASSERT_ONE_ARG(value, "eval");
   ASSERT_IS_LIST(value, 0, "eval");
 
   Value *sexpr = take_value(value, 0);
   sexpr->type = SEXPR;
-  return evaluate(sexpr);
+  return evaluate(env, sexpr);
 }
 
-Value *builtin_cons(Value *value) {
+Value *builtin_cons(__attribute__ ((unused)) Env *env, Value *value) {
   ASSERT_TWO_ARGS(value, "cons");
   ASSERT_IS_LIST(value, 1, "cons");
 
@@ -128,7 +128,7 @@ Value *builtin_cons(Value *value) {
   return value;
 }
 
-Value *builtin_length(Value *value) {
+Value *builtin_length(__attribute__ ((unused)) Env *env, Value *value) {
   ASSERT_ONE_ARG(value, "length");
   ASSERT_IS_LIST(value, 0, "length");
 
@@ -137,7 +137,7 @@ Value *builtin_length(Value *value) {
   return make_number((double)count(list));
 }
 
-Value *builtin_reverse(Value *value) {
+Value *builtin_reverse(__attribute__ ((unused)) Env *env, Value *value) {
   ASSERT_ONE_ARG(value, "reverse");
   ASSERT_IS_LIST(value, 0, "reverse");
 
@@ -154,7 +154,7 @@ Value *builtin_reverse(Value *value) {
   return list;
 }
 
-Value *builtin_init(Value *value) {
+Value *builtin_init(__attribute__ ((unused)) Env *env, Value *value) {
   ASSERT_ONE_ARG(value, "init");
   ASSERT_IS_LIST(value, 0, "init");
   ASSERT_CONTAINS_VALUES(value, "init");

@@ -14,7 +14,7 @@ Parser *create_parser() {
 }
 
 /* Parse an expression, returning its Value */
-Value *parse(Parser *parser, char *input) {
+Value *parse(Env *env, Parser *parser, char *input) {
   /* Define parsers for our Language */
   mpca_lang_contents(MPCA_LANG_DEFAULT, GRAMMAR_FILE, parser->Number,
                      parser->Symbol, parser->Sexpr, parser->Qexpr, parser->Expr,
@@ -26,7 +26,7 @@ Value *parse(Parser *parser, char *input) {
 
   if (mpc_parse("<stdin>", input, parser->Lye, &result)) {
     /* On success return the result */
-    value = evaluate(expressionize(result.output));
+    value = evaluate(env, expressionize(result.output));
     mpc_ast_delete(result.output);
   } else {
     /* Otherwise return the error */
