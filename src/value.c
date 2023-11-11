@@ -17,6 +17,14 @@ Value *make_symbol(Symbol symbol) {
   return value;
 }
 
+/* Create a new function Value */
+Value *make_function(Builtin builtin) {
+  Value *value = malloc(sizeof(Value));
+  value->type = FUNCTION;
+  value->function = builtin;
+  return value;
+}
+
 /* Create a new S-expression Value */
 Value *make_sexpr() {
   Value *value = malloc(sizeof(Value));
@@ -46,8 +54,9 @@ Value *make_error(ErrorMsg error) {
 
 void delete_value(Value *value) {
   switch (value->type) {
-  /* Do nothing special for number type */
+  /* Do nothing special for numbers or function pointers */
   case NUMBER:
+  case FUNCTION:
     break;
   /* For Symbol (and ErrorMsg, below), free the string data */
   case SYMBOL:
@@ -126,6 +135,9 @@ static void print_value_no_newline(Value *value) {
   case SYMBOL:
     printf("%s", value->symbol);
     break;
+  case FUNCTION:
+    printf("<function>");
+    break;
   case SEXPR:
     print_expression(value, '(', ')');
     break;
@@ -185,4 +197,39 @@ Value *join_values(Value *left, Value *right) {
   /* Delete the empty `right` and return `left` */
   delete_value(right);
   return left;
+}
+
+Value *copy_value(Value *value) {
+  Value *copy = malloc(sizeof(Value));
+  copy->type = value->type;
+
+  switch (value->type) {
+  /* Copy Functions and Numbers directly */
+  case NUMBER:
+    copy->number = value->number;
+    break;
+  case FUNCTION:
+    copy->function = value->function;
+    break;
+  /* Copy strings using malloc and strcpy */
+  case SYMBOL:
+    copy->symbol = malloc(strlen(value->symbol) + 1);
+    strcpy(copy->symbol, value->symbol);
+    break;
+  case ERROR:
+    copy->error = malloc(strlen(value->error) + 1);
+    strcpy(copy->error, value->error);
+    break;
+  /* Copy lists by copying each sub-expression */
+  case SEXPR:
+  case QEXPR:
+    copy->sexpr.count = value->sexpr.count;
+    copy->sexpr.cell = malloc(sizeof(Value *) * value->sexpr.count);
+    for (int index = 0; index < copy->sexpr.count; index++) {
+      copy->sexpr.cell[index] = copy_value(value->sexpr.cell[index]);
+    }
+    break;
+  }
+
+  return copy;
 }
