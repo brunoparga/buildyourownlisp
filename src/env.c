@@ -75,6 +75,9 @@ void register_builtin(Env *env, Symbol name, Builtin builtin) {
 
 /* Register the set of built-ins */
 void register_builtins(Env *env) {
+  /* Function definition */
+  register_builtin(env, "def", builtin_def);
+
   /* List operations */
   register_builtin(env, "list", builtin_list);
   register_builtin(env, "head", builtin_head);

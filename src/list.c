@@ -1,5 +1,6 @@
 #include "list.h"
 
+#include "env.h"
 #include "eval.h"
 #include "value.h"
 
@@ -28,18 +29,24 @@
   do {                                                                         \
     LIST_ASSERT(list, IS_QEXPR(element_at(list, index)), function, "a list.")  \
   } while (0)
+
+#define ASSERT_IS_SYMBOL(value, element, function)                             \
+  do {                                                                         \
+    LIST_ASSERT(value, IS_SYMBOL(element), function, "a list of symbols.")     \
+  } while (0)
+
 #define ASSERT_CONTAINS_VALUES(list, function)                                 \
   do {                                                                         \
     LIST_ASSERT(list, count(element_at(list, 0)) > 0, function,                \
                 "a list with at least one element.")                           \
   } while (0)
 
-Value *builtin_list(__attribute__ ((unused)) Env *env, Value *value) {
+Value *builtin_list(__attribute__((unused)) Env *env, Value *value) {
   value->type = QEXPR;
   return value;
 }
 
-Value *builtin_head(__attribute__ ((unused)) Env *env, Value *value) {
+Value *builtin_head(__attribute__((unused)) Env *env, Value *value) {
   /* Check error conditions */
   ASSERT_ONE_ARG(value, "head");
   ASSERT_IS_LIST(value, 0, "head");
@@ -56,7 +63,7 @@ Value *builtin_head(__attribute__ ((unused)) Env *env, Value *value) {
   return result;
 }
 
-Value *builtin_tail(__attribute__ ((unused)) Env *env, Value *value) {
+Value *builtin_tail(__attribute__((unused)) Env *env, Value *value) {
   /* Check error conditions */
   ASSERT_ONE_ARG(value, "tail");
   ASSERT_IS_LIST(value, 0, "tail");
@@ -70,7 +77,7 @@ Value *builtin_tail(__attribute__ ((unused)) Env *env, Value *value) {
   return result;
 }
 
-Value *builtin_join(__attribute__ ((unused)) Env *env, Value *value) {
+Value *builtin_join(__attribute__((unused)) Env *env, Value *value) {
   for (int index = 0; index < count(value); index++) {
     ASSERT_IS_LIST(value, index, "join");
   }
@@ -103,7 +110,7 @@ Value *builtin_eval(Env *env, Value *value) {
   return evaluate(env, sexpr);
 }
 
-Value *builtin_cons(__attribute__ ((unused)) Env *env, Value *value) {
+Value *builtin_cons(__attribute__((unused)) Env *env, Value *value) {
   ASSERT_TWO_ARGS(value, "cons");
   ASSERT_IS_LIST(value, 1, "cons");
 
@@ -128,7 +135,7 @@ Value *builtin_cons(__attribute__ ((unused)) Env *env, Value *value) {
   return value;
 }
 
-Value *builtin_length(__attribute__ ((unused)) Env *env, Value *value) {
+Value *builtin_length(__attribute__((unused)) Env *env, Value *value) {
   ASSERT_ONE_ARG(value, "length");
   ASSERT_IS_LIST(value, 0, "length");
 
@@ -137,7 +144,7 @@ Value *builtin_length(__attribute__ ((unused)) Env *env, Value *value) {
   return make_number((double)count(list));
 }
 
-Value *builtin_reverse(__attribute__ ((unused)) Env *env, Value *value) {
+Value *builtin_reverse(__attribute__((unused)) Env *env, Value *value) {
   ASSERT_ONE_ARG(value, "reverse");
   ASSERT_IS_LIST(value, 0, "reverse");
 
@@ -154,7 +161,7 @@ Value *builtin_reverse(__attribute__ ((unused)) Env *env, Value *value) {
   return list;
 }
 
-Value *builtin_init(__attribute__ ((unused)) Env *env, Value *value) {
+Value *builtin_init(__attribute__((unused)) Env *env, Value *value) {
   ASSERT_ONE_ARG(value, "init");
   ASSERT_IS_LIST(value, 0, "init");
   ASSERT_CONTAINS_VALUES(value, "init");
@@ -163,4 +170,27 @@ Value *builtin_init(__attribute__ ((unused)) Env *env, Value *value) {
   pop_value(list, count(list) - 1);
 
   return list;
+}
+
+Value *builtin_def(Env *env, Value *value) {
+  ASSERT_IS_LIST(value, 0, "def");
+
+  /* The first argument is a list of symbols */
+  Value *symbols = element_at(value, 0);
+
+  /* Ensure all the elements are indeed symbols */
+  for (int index = 0; index < count(symbols); index++) {
+    ASSERT_IS_SYMBOL(value, element_at(symbols, index), "def");
+  }
+
+  /* Ensure the number of symbols and values matches */
+  LIST_ASSERT(value, count(symbols) == count(value) - 1, "def", "the same number of symbols and values.");
+
+  /* Assign copies of values to symbols */
+  for (int index = 0; index < count(symbols); index++) {
+    put_value(env, element_at(symbols, index), element_at(value, index + 1));
+  }
+
+  delete_value(value);
+  return make_sexpr();
 }
