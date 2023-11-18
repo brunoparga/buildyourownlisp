@@ -6,10 +6,17 @@ static int is_integer(double x) {
   return difference > -epsilon && difference < epsilon;
 }
 
-Value *numeric_error(Value *x, Value *y, ErrorMsg message) {
+/* Replace invalid values with error value */
+static Value *numeric_error(Value *x, Value *y, char *format, ...) {
   delete_value(x);
   delete_value(y);
-  return make_error(message);
+
+  va_list pieces;
+  va_start(pieces, format);
+  Value *error = va_list_make_error(format, pieces);
+  va_end(pieces);
+
+  return error;
 }
 
 /* Calculate numerical expressions */
@@ -17,9 +24,11 @@ static Value *builtin_op(Value *value, char *op) {
   /* Ensure all arguments are numbers */
   for (int index = 0; index < count(value); index++) {
     if (!IS_NUMBER(element_at(value, index))) {
+      Value *error =
+          make_error("can only operate on numbers. Found value of type %s.",
+                     get_type(element_at(value, index)));
       delete_value(value);
-      return make_error(
-          "can only operate on numbers. Found a value that is not a number.");
+      return error;
     }
   }
 
@@ -62,12 +71,21 @@ static Value *builtin_op(Value *value, char *op) {
         }
         result->number = (double)int_result;
       } else {
-        result = numeric_error(result, operand, "operands of modulo must be integers.");
+        char *x = NULL;
+        char *y = NULL;
+        result = numeric_error(
+            result, operand,
+            "operands of modulo must be integers, found %s and %s.",
+            number_to_string(result, x), number_to_string(operand, y));
         break;
       }
     } else if (IS_OP("^")) {
       if (result->number == 0 && operand->number < 0) {
-        result = numeric_error(result, operand, "cannot raise 0 to a negative power (requires dividing by 0).");
+        char *x = NULL;
+        result = numeric_error(
+            result, operand,
+            "cannot raise 0 to negative power %s (requires dividing by 0).",
+            number_to_string(operand, x));
         break;
       }
       result->number = pow(result->number, operand->number);

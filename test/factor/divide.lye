@@ -1,9 +1,9 @@
 ; Handle integer and float division
 / 72   4      ; Expect 18
-/ 25   100.0  ; Expect 0.250000
-/ 12.8 2      ; Expect 6.400000
+/ 25   100.0  ; Expect 0.25
+/ 12.8 2      ; Expect 6.4
 / 10.5 0.25   ; Expect 42
-/ 99.9 0.7    ; Expect 142.714286
+/ 99.9 0.7    ; Expect 142.714
 
 ; Handle successive divisions, left-associative
 ; (1024 / 4) / 16

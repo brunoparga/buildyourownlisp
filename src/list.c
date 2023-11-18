@@ -4,14 +4,11 @@
 #include "eval.h"
 #include "value.h"
 
-#define LIST_ASSERT(list, condition, function, error_message)                  \
+#define LIST_ASSERT(list, condition, function, message)                        \
   if (!(condition)) {                                                          \
     delete_value(list);                                                        \
-    return make_error(ERROR_MESSAGE(function, error_message));                 \
+    return make_error("function '%s' must be passed %s", function, message);   \
   }
-
-#define ERROR_MESSAGE(function_name, message)                                  \
-  "function '" function_name "' must be passed " message
 
 #define ASSERT_ARGC(list, argc, function, error_message)                       \
   LIST_ASSERT(list, count(list) == argc, function, error_message)

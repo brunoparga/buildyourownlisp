@@ -12,4 +12,4 @@ max ; Expect max
 (- 100) ; Expect -100
 
 ; But operands need to make sense
-(/ ()) ; Expect Error: can only operate on numbers. Found a value that is not a number.
+(/ ()) ; Expect Error: can only operate on numbers. Found value of type S-Expression.

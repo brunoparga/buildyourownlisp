@@ -1,4 +1,3 @@
-#include <string.h>
 #include "value.h"
 
 /* Create a new number Value */
@@ -47,11 +46,34 @@ Value *make_qexpr() {
 }
 
 /* Create a new error Value */
-Value *make_error(ErrorMsg error) {
+Value *make_error(char *format, ...) {
   Value *value = malloc(sizeof(Value));
   value->type = ERROR;
-  value->error = malloc(strlen(error) + 1);
-  strcpy(value->error, error);
+
+  /* Create and initialize a list of arguments */
+  va_list pieces;
+  va_start(pieces, format);
+
+  /* Allocate 512 bytes of space */
+  value->error = malloc(512);
+
+  /* printf the error string with a maximum of 511 characters */
+  vsnprintf(value->error, 511, format, pieces);
+
+  /* Reallocate to the number of bytes actually used */
+  value->error = realloc(value->error, strlen(value->error) + 1);
+
+  /* Clean up our arg list */
+  va_end(pieces);
+
+  return value;
+}
+
+Value *va_list_make_error(char *format, va_list pieces) {
+  char *error = malloc(512);
+  vsprintf(error, format, pieces);
+  Value *value = make_error(error);
+  free(error);
   return value;
 }
 
@@ -111,6 +133,25 @@ Value *element_at(Value *sexpr_value, int index) {
   }
 }
 
+/* Read the type of a value */
+char *get_type(Value *value) {
+  switch (value->type) {
+  case NUMBER:
+    return "Number";
+  case SYMBOL:
+    return "Symbol";
+  case FUNCTION:
+    return "Function";
+  case SEXPR:
+    return "S-Expression";
+  case QEXPR:
+    return "Q-Expression (List)";
+  case ERROR:
+    return "Error";
+  }
+  return "Unreachable value placed here to please the deities of compilation.";
+}
+
 /* Print a Value */
 static void print_value_no_newline(Value *value);
 
@@ -131,13 +172,15 @@ static void print_expression(Value *value, char open, char close) {
 
 static void print_value_no_newline(Value *value) {
   switch (value->type) {
-  case NUMBER:
-    if (roundf(value->number) == value->number) {
-      printf("%li", (long)value->number);
+  case NUMBER: {
+    double rounded = roundf(value->number);
+    if (rounded == value->number) {
+      printf("%li", (long)rounded);
     } else {
-      printf("%f", value->number);
+      printf("%g", value->number);
     }
     break;
+  }
   case SYMBOL:
     printf("%s", value->symbol);
     break;
@@ -154,6 +197,26 @@ static void print_value_no_newline(Value *value) {
     printf("Error: %s", value->error);
     break;
   }
+}
+
+char *number_to_string(Value *value, char *result) {
+  // Must be called with a Number value, or everything crashes
+  if (!IS_NUMBER(value)) {
+    exit(EX_SOFTWARE);
+  }
+
+  double rounded = roundf(value->number);
+  if (rounded == value->number) {
+    int size = snprintf(NULL, 0, "%li", (long)rounded);
+    result = realloc(result, size);
+    sprintf(result, "%li", (long)rounded);
+  } else {
+    int size = snprintf(NULL, 0, "%g", value->number);
+    result = realloc(result, size);
+    sprintf(result, "%g", value->number);
+  }
+
+  return result;
 }
 
 void print_value(Value *value) {

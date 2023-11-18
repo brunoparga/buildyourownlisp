@@ -2,7 +2,7 @@
 #define lye_calc_h
 
 #include <math.h>
-#include <string.h>
+#include <stdarg.h>
 
 #include "value.h"
 

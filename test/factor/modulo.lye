@@ -10,8 +10,8 @@
 % 16 0 ; Expect Error: modulus cannot be zero.
 
 ; Correctly reject modulo of non-integers
-% 15 7.5 ; Expect Error: operands of modulo must be integers.
-% 7.5 12 ; Expect Error: operands of modulo must be integers.
+% 15 7.5 ; Expect Error: operands of modulo must be integers, found 15 and 7.5.
+% 7.5 12 ; Expect Error: operands of modulo must be integers, found 7.5 and 12.
 
 ; Correctly rejects modulo of non-numbers
 ; % 90 Hello ; Expect Error: can only operate on numbers. Found a value that is not a number.

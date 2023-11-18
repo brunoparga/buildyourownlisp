@@ -2,7 +2,7 @@
 0 ; Expect 0
 
 ; And floats...
-6.28 ; Expect 6.280000
+6.28 ; Expect 6.28
 
 ; With at most six digits of precision, with rounding
-2.718281828459045 ; Expect 2.718282
+2.718281828459045 ; Expect 2.71828

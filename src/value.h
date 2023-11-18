@@ -2,9 +2,11 @@
 #define lye_value_h
 
 #include <math.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sysexits.h>
 
 /* Forward declarations */
 typedef char *Symbol;
@@ -55,12 +57,15 @@ Value *make_symbol(Symbol symbol);
 Value *make_function(Builtin function, Symbol name);
 Value *make_sexpr(void);
 Value *make_qexpr(void);
-Value *make_error(ErrorMsg error);
+Value *make_error(char *format, ...);
+Value *va_list_make_error(char *format, va_list pieces);
 void delete_value(Value *value);
 
 /* Utility functions for working with Values */
 int count(Value *sexpr_value);
 Value *element_at(Value *sexpr_value, int index);
+char *get_type(Value *value);
+char *number_to_string(Value *value, char *result);
 void print_value(Value *value);
 Value *pop_value(Value *value, int index);
 Value *pop(Value *value);

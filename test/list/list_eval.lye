@@ -20,4 +20,4 @@ eval list + 1 2 3 ; Expect Error: function 'eval' must be passed exactly one arg
 eval (+ 1 2 3) ; Expect Error: function 'eval' must be passed a list.
 
 ; The resulting S-Expression must start with a function, for meaningful evaluation
-eval {1 2} ; Expect Error: S-expression must start with a function.
+eval {1 2} ; Expect Error: S-expression must start with a function, found type Number.

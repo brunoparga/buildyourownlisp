@@ -5,10 +5,10 @@
 ^ 25 0.5 ; Expect 5
 
 ; Works with fractional results
-^ 3 (/ 1 3) ; Expect 1.442250
+^ 3 (/ 1 3) ; Expect 1.44225
 
 ; Works with floats
-- (^ 2.718282 3.141592) 3.141592 ; Expect 19.999090
+- (^ 2.718282 3.141592) 3.141592 ; Expect 19.9991
 
 ; The base can be negative
 ^ -7 3 ; Expect -343
@@ -26,4 +26,4 @@
 ^ 0 0 ; Expect 1
 
 ; But you cannot raise 0 to a negative power
-^ 0 -1 ; Expect Error: cannot raise 0 to a negative power (requires dividing by 0).
+^ 0 -1 ; Expect Error: cannot raise 0 to negative power -1 (requires dividing by 0).

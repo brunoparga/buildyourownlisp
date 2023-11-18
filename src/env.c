@@ -20,7 +20,7 @@ void delete_env(Env *env) {
 
 Value *get_value(Env *env, Value *key) {
   if (!IS_SYMBOL(key)) {
-    return make_error("environment keys must be Symbols.");
+    return make_error("environment keys must be Symbols, found key of type %s.", get_type(key));
   }
 
   /* Iterate over all items in the environment */
@@ -33,7 +33,7 @@ Value *get_value(Env *env, Value *key) {
   }
 
   /* If no matching key found, return an error */
-  return make_error("this symbol was not found to be bound to a value.");
+  return make_error("unbound symbol '%s'.", key->symbol);
 }
 
 void put_value(Env *env, Value *key, Value *value) {

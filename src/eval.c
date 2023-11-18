@@ -21,9 +21,12 @@ static Value *evaluate_sexpr(Env *env, Value *value) {
   /* Ensure first element is a function after evaluation */
   Value *first = pop(value);
   if (!IS_FUNCTION(first)) {
+    Value *error =
+        make_error("S-expression must start with a function, found type %s.",
+                   get_type(first));
     delete_value(first);
     delete_value(value);
-    return make_error("S-expression must start with a function.");
+    return error;
   }
 
   /* Call function */
