@@ -4,7 +4,7 @@ LDFLAGS = -ledit -lm
 COMPILE = $(CC) -c $(CFLAGS) $< -o $@
 
 SOURCES = src/main.c src/calc.c src/env.c src/eval.c src/expressionizer.c src/list.c src/parser.c src/repl.c src/value.c lib/mpc.o utils/file.c
-OBJECTS = src/main.c build/calc.o build/env.o build/eval.o build/expressionizer.o build/list.o build/parser.o build/repl.o build/value.o build/file.o
+OBJECTS = src/main.c build/calc.o build/env.o build/eval.o build/expressionizer.o build/list.o build/parser.o build/repl.o build/value.o build/file.o src/assert.h
 
 test: test/test.c build/lye
 	$(CC) $(CFLAGS) test/test.c -o build/test

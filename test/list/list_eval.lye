@@ -14,7 +14,7 @@ list (+ 1 2 3) ; Expect {6}
 eval {list (+ 1 2 3)} ; Expect {6}
 
 ; It only takes a single argument
-eval list + 1 2 3 ; Expect Error: function 'eval' must be passed exactly one argument.
+eval list + 1 2 3 ; Expect Error: function 'eval' must be passed 1 argument, but got 5 instead.
 
 ; Its argument must be a list (Q-Expr)
 eval (+ 1 2 3) ; Expect Error: function 'eval' must be passed a list.

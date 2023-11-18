@@ -3,40 +3,6 @@
 // Included here and not in header file to avoid circular dependency
 #include "eval.h"
 
-#define LIST_ASSERT(list, condition, function, message)                        \
-  if (!(condition)) {                                                          \
-    delete_value(list);                                                        \
-    return make_error("function '%s' must be passed %s", function, message);   \
-  }
-
-#define ASSERT_ARGC(list, argc, function, error_message)                       \
-  LIST_ASSERT(list, count(list) == argc, function, error_message)
-
-#define ASSERT_ONE_ARG(list, function)                                         \
-  do {                                                                         \
-    ASSERT_ARGC(list, 1, function, "exactly one argument.")                    \
-  } while (0)
-#define ASSERT_TWO_ARGS(list, function)                                        \
-  do {                                                                         \
-    ASSERT_ARGC(list, 2, function, "exactly two arguments.")                   \
-  } while (0)
-
-#define ASSERT_IS_LIST(list, index, function)                                  \
-  do {                                                                         \
-    LIST_ASSERT(list, IS_QEXPR(element_at(list, index)), function, "a list.")  \
-  } while (0)
-
-#define ASSERT_IS_SYMBOL(value, element, function)                             \
-  do {                                                                         \
-    LIST_ASSERT(value, IS_SYMBOL(element), function, "a list of symbols.")     \
-  } while (0)
-
-#define ASSERT_CONTAINS_VALUES(list, function)                                 \
-  do {                                                                         \
-    LIST_ASSERT(list, count(element_at(list, 0)) > 0, function,                \
-                "a list with at least one element.")                           \
-  } while (0)
-
 Value *builtin_list(__attribute__((unused)) Env *env, Value *value) {
   value->type = QEXPR;
   return value;
@@ -44,7 +10,7 @@ Value *builtin_list(__attribute__((unused)) Env *env, Value *value) {
 
 Value *builtin_head(__attribute__((unused)) Env *env, Value *value) {
   /* Check error conditions */
-  ASSERT_ONE_ARG(value, "head");
+  ASSERT_ARGC(value, 1, "head");
   ASSERT_IS_LIST(value, 0, "head");
   ASSERT_CONTAINS_VALUES(value, "head");
 
@@ -61,7 +27,7 @@ Value *builtin_head(__attribute__((unused)) Env *env, Value *value) {
 
 Value *builtin_tail(__attribute__((unused)) Env *env, Value *value) {
   /* Check error conditions */
-  ASSERT_ONE_ARG(value, "tail");
+  ASSERT_ARGC(value, 1, "tail");
   ASSERT_IS_LIST(value, 0, "tail");
   ASSERT_CONTAINS_VALUES(value, "tail");
 
@@ -98,7 +64,7 @@ Value *builtin_join(__attribute__((unused)) Env *env, Value *value) {
 }
 
 Value *builtin_eval(Env *env, Value *value) {
-  ASSERT_ONE_ARG(value, "eval");
+  ASSERT_ARGC(value, 1, "eval");
   ASSERT_IS_LIST(value, 0, "eval");
 
   Value *sexpr = take_value(value, 0);
@@ -107,7 +73,7 @@ Value *builtin_eval(Env *env, Value *value) {
 }
 
 Value *builtin_cons(__attribute__((unused)) Env *env, Value *value) {
-  ASSERT_TWO_ARGS(value, "cons");
+  ASSERT_ARGC(value, 2, "cons");
   ASSERT_IS_LIST(value, 1, "cons");
 
   Value *new_element = element_at(value, 0);
@@ -132,7 +98,7 @@ Value *builtin_cons(__attribute__((unused)) Env *env, Value *value) {
 }
 
 Value *builtin_length(__attribute__((unused)) Env *env, Value *value) {
-  ASSERT_ONE_ARG(value, "length");
+  ASSERT_ARGC(value, 1, "length");
   ASSERT_IS_LIST(value, 0, "length");
 
   /* What we want is the Q-expr contained within this S-expr */
@@ -141,7 +107,7 @@ Value *builtin_length(__attribute__((unused)) Env *env, Value *value) {
 }
 
 Value *builtin_reverse(__attribute__((unused)) Env *env, Value *value) {
-  ASSERT_ONE_ARG(value, "reverse");
+  ASSERT_ARGC(value, 1, "reverse");
   ASSERT_IS_LIST(value, 0, "reverse");
 
   Value *list = element_at(value, 0);
@@ -158,7 +124,7 @@ Value *builtin_reverse(__attribute__((unused)) Env *env, Value *value) {
 }
 
 Value *builtin_init(__attribute__((unused)) Env *env, Value *value) {
-  ASSERT_ONE_ARG(value, "init");
+  ASSERT_ARGC(value, 1, "init");
   ASSERT_IS_LIST(value, 0, "init");
   ASSERT_CONTAINS_VALUES(value, "init");
 
@@ -180,8 +146,8 @@ Value *builtin_def(Env *env, Value *value) {
   }
 
   /* Ensure the number of symbols and values matches */
-  LIST_ASSERT(value, count(symbols) == count(value) - 1, "def",
-              "the same number of symbols and values.");
+  ASSERT(value, count(symbols) == count(value) - 1, "def",
+         "the same number of symbols and values.");
 
   /* Assign copies of values to symbols */
   for (int index = 0; index < count(symbols); index++) {

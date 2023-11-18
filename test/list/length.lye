@@ -7,4 +7,4 @@ length {1 2 3 4 5} ; Expect 5
 length 5 ; Expect Error: function 'length' must be passed a list.
 
 ; But only one at a time
-length {1 2} {3 4 5} ; Expect Error: function 'length' must be passed exactly one argument.
+length {1 2} {3 4 5} ; Expect Error: function 'length' must be passed 1 argument, but got 2 instead.

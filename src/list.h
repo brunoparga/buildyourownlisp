@@ -1,6 +1,7 @@
 #ifndef lye_list_h
 #define lye_list_h
 
+#include "assert.h"
 #include "value.h"
 
 Value *builtin_list(Env *env, Value *value);
