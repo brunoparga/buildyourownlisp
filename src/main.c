@@ -1,6 +1,5 @@
 #include "../utils/file.h"
 
-#include "env.h"
 #include "repl.h"
 
 static void run_file(Env *env, Parser *parser, char *filename) {

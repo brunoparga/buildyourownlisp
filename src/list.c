@@ -1,8 +1,7 @@
 #include "list.h"
 
-#include "env.h"
+// Included here and not in header file to avoid circular dependency
 #include "eval.h"
-#include "value.h"
 
 #define LIST_ASSERT(list, condition, function, message)                        \
   if (!(condition)) {                                                          \
