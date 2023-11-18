@@ -23,13 +23,7 @@ static Value *numeric_error(Value *x, Value *y, char *format, ...) {
 static Value *builtin_op(Value *value, char *op) {
   /* Ensure all arguments are numbers */
   for (int index = 0; index < count(value); index++) {
-    if (!IS_NUMBER(element_at(value, index))) {
-      Value *error =
-          make_error("can only operate on numbers. Found value of type %s.",
-                     get_type(element_at(value, index)));
-      delete_value(value);
-      return error;
-    }
+    ASSERT_IS_NUMBER(value, index, op);
   }
 
   Value *result = pop(value);

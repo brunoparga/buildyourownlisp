@@ -3,8 +3,9 @@
 
 #define ASSERT(value, condition, format, ...)                                  \
   if (!(condition)) {                                                          \
+    Value *error = make_error(format, ##__VA_ARGS__);                          \
     delete_value(value);                                                       \
-    return make_error(format, ##__VA_ARGS__);                                  \
+    return error;                                                              \
   }
 
 #define BASE_FORMAT "function '%s' must be passed %s"
@@ -16,6 +17,14 @@
     ASSERT(value, actual_argc == expected_argc,                                \
            "function '%s' must be passed %d argument%s, but got %d instead.",  \
            caller, expected_argc, plural, actual_argc)                         \
+  } while (0)
+
+#define ASSERT_IS_NUMBER(value, index, caller)                                 \
+  do {                                                                         \
+    ASSERT(                                                                    \
+        value, IS_NUMBER(element_at(value, index)),                            \
+        "operator '%s' can only operate on numbers. Found value of type %s.",  \
+        caller, get_type(value))                                               \
   } while (0)
 
 #define ASSERT_IS_LIST(value, index, caller)                                   \

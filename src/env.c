@@ -19,8 +19,9 @@ void delete_env(Env *env) {
 }
 
 Value *get_value(Env *env, Value *key) {
+  // Must be called with a Symbol key, or everything crashes
   if (!IS_SYMBOL(key)) {
-    return make_error("environment keys must be Symbols, found key of type %s.", get_type(key));
+    exit(EX_SOFTWARE);
   }
 
   /* Iterate over all items in the environment */
@@ -37,10 +38,11 @@ Value *get_value(Env *env, Value *key) {
 }
 
 void put_value(Env *env, Value *key, Value *value) {
+  // Must be called with a Symbol key, or everything crashes
   if (!IS_SYMBOL(key)) {
-    printf("Error: environment keys must be Symbols.");
-    return;
+    exit(EX_SOFTWARE);
   }
+
   /* First, check if the key is already present */
   for (int index = 0; index < env->count; index++) {
     /* If it is... */

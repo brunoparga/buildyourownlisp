@@ -4,6 +4,7 @@
 #include <math.h>
 #include <stdarg.h>
 
+#include "assert.h"
 #include "value.h"
 
 Value *builtin_add(Env *env, Value *value);
