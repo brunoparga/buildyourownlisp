@@ -1,3 +1,4 @@
+#include <string.h>
 #include "value.h"
 
 /* Create a new number Value */
@@ -18,10 +19,12 @@ Value *make_symbol(Symbol symbol) {
 }
 
 /* Create a new function Value */
-Value *make_function(Builtin builtin) {
+Value *make_function(Builtin builtin, Symbol name) {
   Value *value = malloc(sizeof(Value));
   value->type = FUNCTION;
-  value->function = builtin;
+  value->function.name = malloc(strlen(name) + 1);
+  strcpy(value->function.name, name);
+  value->function.body = builtin;
   return value;
 }
 
@@ -54,9 +57,12 @@ Value *make_error(ErrorMsg error) {
 
 void delete_value(Value *value) {
   switch (value->type) {
-  /* Do nothing special for numbers or function pointers */
+  /* Do nothing special for numbers */
   case NUMBER:
+    break;
+  /* For Functions we must free their name */
   case FUNCTION:
+    free(value->function.name);
     break;
   /* For Symbol (and ErrorMsg, below), free the string data */
   case SYMBOL:
@@ -136,7 +142,7 @@ static void print_value_no_newline(Value *value) {
     printf("%s", value->symbol);
     break;
   case FUNCTION:
-    printf("<function>");
+    printf("%s", value->function.name);
     break;
   case SEXPR:
     print_expression(value, '(', ')');
@@ -208,8 +214,11 @@ Value *copy_value(Value *value) {
   case NUMBER:
     copy->number = value->number;
     break;
+  /* We copy the name and the pointer of the function */
   case FUNCTION:
-    copy->function = value->function;
+    copy->function.name = malloc(strlen(value->function.name) + 1);
+    strcpy(copy->function.name, value->function.name);
+    copy->function.body = value->function.body;
     break;
   /* Copy strings using malloc and strcpy */
   case SYMBOL:

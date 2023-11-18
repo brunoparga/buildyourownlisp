@@ -24,15 +24,20 @@ typedef struct Sexpr {
 /* Define the Builtin function pointer type */
 typedef Value *(*Builtin)(Env *, Value *);
 
+typedef struct Function {
+  Symbol name;
+  Builtin body;
+} Function;
+
 /* Define the Value struct */
 typedef struct Value {
   ValueType type;
   union {
     double number;
     Symbol symbol;
-    Builtin function;
     ErrorMsg error;
     struct Sexpr sexpr;
+    struct Function function;
   };
 } Value;
 
@@ -47,7 +52,7 @@ typedef struct Value {
 /* Value constructors and destructor */
 Value *make_number(double number);
 Value *make_symbol(Symbol symbol);
-Value *make_function(Builtin function);
+Value *make_function(Builtin function, Symbol name);
 Value *make_sexpr(void);
 Value *make_qexpr(void);
 Value *make_error(ErrorMsg error);

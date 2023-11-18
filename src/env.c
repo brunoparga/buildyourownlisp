@@ -67,7 +67,7 @@ void put_value(Env *env, Value *key, Value *value) {
 /* Make the given built-in available for any Lye program */
 void register_builtin(Env *env, Symbol name, Builtin builtin) {
   Value *key = make_symbol(name);
-  Value *function = make_function(builtin);
+  Value *function = make_function(builtin, name);
   put_value(env, key, function);
   delete_value(key);
   delete_value(function);

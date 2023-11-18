@@ -27,7 +27,7 @@ static Value *evaluate_sexpr(Env *env, Value *value) {
   }
 
   /* Call function */
-  Value *result = first->function(env, value);
+  Value *result = first->function.body(env, value);
   delete_value(first);
   return result;
 }
