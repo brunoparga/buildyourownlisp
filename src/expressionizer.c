@@ -1,24 +1,11 @@
 #include "expressionizer.h"
 
-static Value *read_number(mpc_ast_t *t) {
+static Value *read_number(mpc_ast_t *ast) {
   errno = 0;
-  double number = strtod(t->contents, NULL);
+  double number = strtod(ast->contents, NULL);
   return errno == ERANGE ? make_error("number outside of valid bounds.")
                          : make_number(number);
 }
-
-// static int str_match(char* string, int count, ...) {
-//   va_list(candidates);
-//   int result = 0;
-//   va_start(candidates, count);
-//   for (int index = 0; index < count; index++) {
-//     if (strcmp(string, va_arg(candidates, char*)) == 0) {
-//       result = 1;
-//     }
-//   }
-//   va_end(candidates);
-//   return result;
-// }
 
 Value *expressionize(mpc_ast_t *ast) {
 #define HAS_TAG(some_tag) (strstr(ast->tag, some_tag))

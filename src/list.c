@@ -184,7 +184,8 @@ Value *builtin_def(Env *env, Value *value) {
   }
 
   /* Ensure the number of symbols and values matches */
-  LIST_ASSERT(value, count(symbols) == count(value) - 1, "def", "the same number of symbols and values.");
+  LIST_ASSERT(value, count(symbols) == count(value) - 1, "def",
+              "the same number of symbols and values.");
 
   /* Assign copies of values to symbols */
   for (int index = 0; index < count(symbols); index++) {

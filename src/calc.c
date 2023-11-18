@@ -86,27 +86,27 @@ static Value *builtin_op(Value *value, char *op) {
   return result;
 }
 
-Value *builtin_add(__attribute__ ((unused)) Env *env, Value *value) {
+Value *builtin_add(__attribute__((unused)) Env *env, Value *value) {
   return builtin_op(value, "+");
 }
-Value *builtin_subtract(__attribute__ ((unused)) Env *env, Value *value) {
+Value *builtin_subtract(__attribute__((unused)) Env *env, Value *value) {
   return builtin_op(value, "-");
 }
-Value *builtin_multiply(__attribute__ ((unused)) Env *env, Value *value) {
+Value *builtin_multiply(__attribute__((unused)) Env *env, Value *value) {
   return builtin_op(value, "*");
 }
-Value *builtin_divide(__attribute__ ((unused)) Env *env, Value *value) {
+Value *builtin_divide(__attribute__((unused)) Env *env, Value *value) {
   return builtin_op(value, "/");
 }
-Value *builtin_modulo(__attribute__ ((unused)) Env *env, Value *value) {
+Value *builtin_modulo(__attribute__((unused)) Env *env, Value *value) {
   return builtin_op(value, "%");
 }
-Value *builtin_exp(__attribute__ ((unused)) Env *env, Value *value) {
+Value *builtin_exp(__attribute__((unused)) Env *env, Value *value) {
   return builtin_op(value, "^");
 }
-Value *builtin_min(__attribute__ ((unused)) Env *env, Value *value) {
+Value *builtin_min(__attribute__((unused)) Env *env, Value *value) {
   return builtin_op(value, "min");
 }
-Value *builtin_max(__attribute__ ((unused)) Env *env, Value *value) {
+Value *builtin_max(__attribute__((unused)) Env *env, Value *value) {
   return builtin_op(value, "max");
 }
