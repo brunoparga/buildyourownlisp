@@ -9,7 +9,7 @@
 
 #include "../utils/file.h"
 
-#define GRAMMAR_FILE "/home/bruno/code/learn/buildyourownlisp/grammar.txt"
+#define GRAMMAR_FILE "./grammar.txt"
 
 typedef struct Parser {
   mpc_parser_t *Number;
