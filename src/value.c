@@ -208,11 +208,11 @@ void number_to_string(Value *value, char *result) {
   double rounded = roundf(value->number);
   if (rounded == value->number) {
     int size = snprintf(NULL, 0, "%li", (long)rounded);
-    result = realloc(result, size);
+    result = realloc(result, size + 1);
     sprintf(result, "%li", (long)rounded);
   } else {
     int size = snprintf(NULL, 0, "%g", value->number);
-    result = realloc(result, size);
+    result = realloc(result, size + 1);
     sprintf(result, "%g", value->number);
   }
 }
