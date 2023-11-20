@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 
 #include <err.h>
+#include <fts.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -135,7 +136,7 @@ int main(int argc, char **argv) {
       }
     }
 
-    free(test_dir);
+    fts_close(test_dir);
   }
 
   int total = successes + failures;
