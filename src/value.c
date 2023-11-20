@@ -199,7 +199,7 @@ static void print_value_no_newline(Value *value) {
   }
 }
 
-char *number_to_string(Value *value, char *result) {
+void number_to_string(Value *value, char *result) {
   // Must be called with a Number value, or everything crashes
   if (!IS_NUMBER(value)) {
     exit(EX_SOFTWARE);
@@ -215,8 +215,6 @@ char *number_to_string(Value *value, char *result) {
     result = realloc(result, size);
     sprintf(result, "%g", value->number);
   }
-
-  return result;
 }
 
 void print_value(Value *value) {

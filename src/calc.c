@@ -67,19 +67,23 @@ static Value *builtin_op(Value *value, char *op) {
       } else {
         char *x = NULL;
         char *y = NULL;
+        number_to_string(result, x);
+        number_to_string(result, y);
         result = numeric_error(
             result, operand,
-            "operands of modulo must be integers, found %s and %s.",
-            number_to_string(result, x), number_to_string(operand, y));
+            "operands of modulo must be integers, found %s and %s.", x, y);
+        free(x);
+        free(y);
         break;
       }
     } else if (IS_OP("^")) {
       if (result->number == 0 && operand->number < 0) {
         char *x = NULL;
+        number_to_string(operand, x);
         result = numeric_error(
             result, operand,
-            "cannot raise 0 to negative power %s (requires dividing by 0).",
-            number_to_string(operand, x));
+            "cannot raise 0 to negative power %s (requires dividing by 0).", x);
+        free(x);
         break;
       }
       result->number = pow(result->number, operand->number);
