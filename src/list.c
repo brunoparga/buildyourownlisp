@@ -103,7 +103,9 @@ Value *builtin_length(__attribute__((unused)) Env *env, Value *value) {
 
   /* What we want is the Q-expr contained within this S-expr */
   Value *list = value->sexpr.cell[0];
-  return make_number((double)count(list));
+  Value *result = make_number((double)count(list));
+  delete_value(value);
+  return result;
 }
 
 Value *builtin_reverse(__attribute__((unused)) Env *env, Value *value) {
