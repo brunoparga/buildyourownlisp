@@ -2,6 +2,7 @@
 
 // Included here and not in header file to avoid circular dependency
 #include "eval.h"
+#include "value.h"
 
 Value *builtin_list(__attribute__((unused)) Env *env, Value *value) {
   value->type = QEXPR;
@@ -79,8 +80,9 @@ Value *builtin_cons(__attribute__((unused)) Env *env, Value *value) {
   ASSERT_ARGC(value, 2, "cons");
   ASSERT_IS_LIST(value, 1, "cons");
 
-  Value *new_element = element_at(value, 0);
-  Value *list = element_at(value, 1);
+  Value *new_element = copy_value(element_at(value, 0));
+  Value *list = copy_value(element_at(value, 1));
+  delete_value(value);
 
   /* Set new size of Q-expr */
   list->sexpr.count++;
@@ -95,9 +97,8 @@ Value *builtin_cons(__attribute__((unused)) Env *env, Value *value) {
 
   /* Set the correct pointers */
   list->sexpr.cell[0] = new_element;
-  value = list;
 
-  return value;
+  return list;
 }
 
 Value *builtin_length(__attribute__((unused)) Env *env, Value *value) {
@@ -115,7 +116,7 @@ Value *builtin_reverse(__attribute__((unused)) Env *env, Value *value) {
   ASSERT_ARGC(value, 1, "reverse");
   ASSERT_IS_LIST(value, 0, "reverse");
 
-  Value *list = element_at(value, 0);
+  Value *list = copy_value(element_at(value, 0));
   int length = count(list);
 
   for (int index = 0; index < length / 2; index++) {
@@ -124,7 +125,7 @@ Value *builtin_reverse(__attribute__((unused)) Env *env, Value *value) {
     list->sexpr.cell[length - index - 1] = tmp;
   }
 
-  free(value);
+  delete_value(value);
   return list;
 }
 
@@ -133,10 +134,11 @@ Value *builtin_init(__attribute__((unused)) Env *env, Value *value) {
   ASSERT_IS_LIST(value, 0, "init");
   ASSERT_CONTAINS_VALUES(value, "init");
 
-  value = element_at(value, 0);
-  delete_value(pop_value(value, count(value) - 1));
+  Value *result = copy_value(element_at(value, 0));
+  delete_value(value);
+  delete_value(pop_value(result, count(result) - 1));
 
-  return value;
+  return result;
 }
 
 Value *builtin_def(Env *env, Value *value) {
