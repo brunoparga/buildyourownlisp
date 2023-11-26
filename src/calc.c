@@ -65,10 +65,8 @@ static Value *builtin_op(Value *value, char *op) {
         }
         result->number = (double)int_result;
       } else {
-        char *x = NULL;
-        char *y = NULL;
-        number_to_string(result, x);
-        number_to_string(result, y);
+        char *x = number_to_string(result, NULL);
+        char *y = number_to_string(operand, NULL);
         result = numeric_error(
             result, operand,
             "operands of modulo must be integers, found %s and %s.", x, y);
@@ -78,8 +76,7 @@ static Value *builtin_op(Value *value, char *op) {
       }
     } else if (IS_OP("^")) {
       if (result->number == 0 && operand->number < 0) {
-        char *x = NULL;
-        number_to_string(operand, x);
+        char *x = number_to_string(operand, NULL);
         result = numeric_error(
             result, operand,
             "cannot raise 0 to negative power %s (requires dividing by 0).", x);

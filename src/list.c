@@ -56,7 +56,7 @@ Value *builtin_join(__attribute__((unused)) Env *env, Value *value) {
       result = append_value(result, next);
     }
     // We pop from the S-expr the Q-expr being appended, which is now empty
-    pop(value);
+    delete_value(pop(value));
   }
 
   delete_value(value);

@@ -65,7 +65,7 @@ void delete_value(Value *value);
 int count(Value *sexpr_value);
 Value *element_at(Value *sexpr_value, int index);
 char *get_type(Value *value);
-void number_to_string(Value *value, char *result);
+char *number_to_string(Value *value, char *result);
 void print_value(Value *value);
 Value *pop_value(Value *value, int index);
 Value *pop(Value *value);
