@@ -15,13 +15,16 @@ Value *builtin_head(__attribute__((unused)) Env *env, Value *value) {
   ASSERT_CONTAINS_VALUES(value, "head");
 
   /* Otherwise take the first element. */
-  Value *result = take_value(value, 0)->sexpr.cell[0];
+  value = take_value(value, 0);
 
   /* Delete all elements that are not head and return */
-  while (result->sexpr.count > 1) {
-    delete_value(pop_value(result, 1));
+  while (value->sexpr.count > 1) {
+    delete_value(pop_value(value, 1));
   }
 
+  /* Return the actual first value, not a list containing it */
+  Value *result = pop(value);
+  delete_value(value);
   return result;
 }
 
@@ -130,10 +133,10 @@ Value *builtin_init(__attribute__((unused)) Env *env, Value *value) {
   ASSERT_IS_LIST(value, 0, "init");
   ASSERT_CONTAINS_VALUES(value, "init");
 
-  Value *list = element_at(value, 0);
-  pop_value(list, count(list) - 1);
+  value = element_at(value, 0);
+  delete_value(pop_value(value, count(value) - 1));
 
-  return list;
+  return value;
 }
 
 Value *builtin_def(Env *env, Value *value) {
