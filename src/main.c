@@ -1,3 +1,10 @@
+/*
+ * src/main.c
+ *
+ * The main module. Process the command line arguments passed to the Lye
+ * interpreter, if any, and kick off evaluation of the code therein.
+ *
+ */
 #include "../utils/file.h"
 
 #include "repl.h"

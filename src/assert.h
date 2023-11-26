@@ -1,3 +1,10 @@
+/*
+ * src/assert.h
+ *
+ * Contain macros that assert various facts about Values for error detection
+ * and handling purposes.
+ *
+ */
 #ifndef lye_assert_h
 #define lye_assert_h
 

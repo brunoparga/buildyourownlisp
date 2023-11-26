@@ -1,3 +1,11 @@
+/*
+ * src/env.h
+ *
+ * Define the Environment (Env) where variables and functions are stored.
+ * Expose functions to create and destroy Envs and store and retrieve values
+ * within them.
+ *
+ */
 #ifndef lye_env_h
 #define lye_env_h
 

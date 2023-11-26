@@ -1,3 +1,10 @@
+/*
+ * src/parser.h
+ *
+ * Define the Parser structure, which is coupled with the external dependency
+ * MPC, along with functions to create, use and destroy it.
+ *
+ */
 #ifndef lye_parser_h
 #define lye_parser_h
 
@@ -11,6 +18,8 @@
 
 #define GRAMMAR_FILE "./grammar.txt"
 
+/* Define the Parser struct; it should have one `mpc_parser_t` for each
+rule in the grammar */
 typedef struct Parser {
   mpc_parser_t *Number;
   mpc_parser_t *Symbol;

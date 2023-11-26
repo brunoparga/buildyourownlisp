@@ -1,3 +1,10 @@
+/*
+ * src/repl.h
+ *
+ * Define the Read-Eval-Print Loop and expose `run_string`, the function that
+ * takes in source code and runs it.
+ *
+ */
 #ifndef lye_repl_h
 #define lye_repl_h
 

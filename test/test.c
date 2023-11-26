@@ -1,3 +1,9 @@
+/*
+ * test/test.c
+ *
+ * Language test runner; runs the Lye files contained in subdirectories.
+ *
+ */
 #define _GNU_SOURCE
 
 #include <err.h>

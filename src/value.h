@@ -1,3 +1,11 @@
+/*
+ * src/value.h
+ *
+ * Define a Lye language Value. Macros are provided to assert the type of a
+ * Value, as well as functions to create and destroy Values and utilities for
+ * manipulating them.
+ *
+ */
 #ifndef lye_value_h
 #define lye_value_h
 
@@ -26,6 +34,7 @@ typedef struct Sexpr {
 /* Define the Builtin function pointer type */
 typedef Value *(*Builtin)(Env *, Value *);
 
+/* Define the Function struct */
 typedef struct Function {
   Symbol name;
   Builtin body;

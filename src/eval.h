@@ -1,3 +1,9 @@
+/*
+ * src/eval.h
+ *
+ * Expose a function to evaluate a Lye expression.
+ *
+ */
 #ifndef lye_eval_h
 #define lye_eval_h
 

@@ -1,3 +1,9 @@
+/*
+ * src/list.h
+ *
+ * Contain built-in Lye functions that operate on lists.
+ *
+ */
 #ifndef lye_list_h
 #define lye_list_h
 

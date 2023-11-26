@@ -1,3 +1,11 @@
+/*
+ * src/calc.h
+ *
+ * Contain built-in Lye functions that perform arithmetic operations, as well
+ * as two list operations, `max` and `min`, that only make sense with lists of
+ * numbers.
+ *
+ */
 #ifndef lye_calc_h
 #define lye_calc_h
 
