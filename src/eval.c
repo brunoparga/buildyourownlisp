@@ -1,5 +1,12 @@
 #include "eval.h"
 
+/*
+ * src/eval.c:evaluate_sexpr
+ * buildyourownlisp.com correspondence: lval_eval_sexpr
+ *
+ * Evaluate an S-expression, which is in effect a function call.
+ *
+ */
 static Value *evaluate_sexpr(Env *env, Value *value) {
   /* Evaluate children */
   for (int index = 0; index < count(value); index++) {
@@ -14,6 +21,7 @@ static Value *evaluate_sexpr(Env *env, Value *value) {
     return value;
   }
 
+  /* Singleton expression */
   if (count(value) == 1) {
     return take_value(value, 0);
   }
@@ -35,6 +43,13 @@ static Value *evaluate_sexpr(Env *env, Value *value) {
   return value;
 }
 
+/*
+ * src/eval.c:evaluate
+ * buildyourownlisp.com correspondence: lval_eval
+ *
+ * Evaluate a Lye expression.
+ *
+ */
 Value *evaluate(Env *env, Value *value) {
   switch (value->type) {
   case SYMBOL: {
@@ -47,7 +62,9 @@ Value *evaluate(Env *env, Value *value) {
     /* Expand S-expressions */
     return evaluate_sexpr(env, value);
   default:
-    /* All other Value types remain the same */
+    /* All other Value types remain the same. Notably, since Q-Expressions
+    are meant to be just quoted but not evaluated, they fall within this
+    case. */
     return value;
   }
 }

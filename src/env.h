@@ -16,6 +16,13 @@
 #include "list.h"
 #include "value.h"
 
+/*
+ * buildyourownlisp.com correspondence: lenv
+ *
+ * Define the Env struct. It is implemented as a pair of lists plus their
+ * length, with the invariant that the length is equal for both.
+ *
+ */
 typedef struct Env {
   int count;
   Symbol *keys;

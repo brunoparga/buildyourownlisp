@@ -9,12 +9,10 @@
 #define lye_parser_h
 
 #include "../lib/mpc.h"
+#include "../utils/file.h"
 
 #include "eval.h"
-#include "expressionizer.h"
 #include "value.h"
-
-#include "../utils/file.h"
 
 #define GRAMMAR_FILE "./grammar.txt"
 

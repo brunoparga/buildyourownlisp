@@ -2,13 +2,30 @@
 
 // Included here and not in header file to avoid circular dependency
 #include "eval.h"
-#include "value.h"
 
+/*
+ * src/list.c:builtin_list
+ * buildyourownlisp.com correspondence: builtin_list
+ *
+ * Take any number of arguments and return a list containing them.
+ * While conceptually the Lye function may take any number of arguments, the
+ * C implementation takes only one – an S-Expression with the values as
+ * children. Therefore, all that is needed is to change the type of this Value.
+ *
+ */
 Value *builtin_list(__attribute__((unused)) Env *env, Value *value) {
   value->type = QEXPR;
   return value;
 }
 
+/*
+ * src/list.c:builtin_head
+ * buildyourownlisp.com correspondence: builtin_head
+ *
+ * Take a list and return its first element. The semantics differ from BYOL
+ * in that the actual element is returned, not a list containing it.
+ *
+ */
 Value *builtin_head(__attribute__((unused)) Env *env, Value *value) {
   /* Check error conditions */
   ASSERT_ARGC(value, 1, "head");
@@ -23,12 +40,20 @@ Value *builtin_head(__attribute__((unused)) Env *env, Value *value) {
     delete_value(pop_value(value, 1));
   }
 
-  /* Return the actual first value, not a list containing it */
+  /* Return the actual first element */
   Value *result = pop(value);
   delete_value(value);
   return result;
 }
 
+/*
+ * src/list.c:builtin_tail
+ * buildyourownlisp.com correspondence: builtin_tail
+ *
+ * Take a list and return a list containing all of its elements but the first
+ * one.
+ *
+ */
 Value *builtin_tail(__attribute__((unused)) Env *env, Value *value) {
   /* Check error conditions */
   ASSERT_ARGC(value, 1, "tail");
@@ -43,6 +68,14 @@ Value *builtin_tail(__attribute__((unused)) Env *env, Value *value) {
   return result;
 }
 
+/*
+ * src/list.c:builtin_join
+ * buildyourownlisp.com correspondence: builtin_join
+ *
+ * Take one or more lists and join them together into a single list, preserving
+ * any nesting.
+ *
+ */
 Value *builtin_join(__attribute__((unused)) Env *env, Value *value) {
   for (int index = 0; index < count(value); index++) {
     ASSERT_IS_LIST(value, index, "join");
@@ -67,6 +100,13 @@ Value *builtin_join(__attribute__((unused)) Env *env, Value *value) {
   return result;
 }
 
+/*
+ * src/list.c:builtin_eval
+ * buildyourownlisp.com correspondence: builtin_eval
+ *
+ * Convert a Q-Expression into an S-Expression and evaluate it.
+ *
+ */
 Value *builtin_eval(Env *env, Value *value) {
   ASSERT_ARGC(value, 1, "eval");
   ASSERT_IS_LIST(value, 0, "eval");
@@ -76,6 +116,13 @@ Value *builtin_eval(Env *env, Value *value) {
   return evaluate(env, sexpr);
 }
 
+/*
+ * src/list.c:builtin_cons
+ * buildyourownlisp.com correspondence: none
+ *
+ * Take a Value and a list and prepend the Value to the list.
+ *
+ */
 Value *builtin_cons(__attribute__((unused)) Env *env, Value *value) {
   ASSERT_ARGC(value, 2, "cons");
   ASSERT_IS_LIST(value, 1, "cons");
@@ -101,6 +148,13 @@ Value *builtin_cons(__attribute__((unused)) Env *env, Value *value) {
   return list;
 }
 
+/*
+ * src/list.c:builtin_length
+ * buildyourownlisp.com correspondence: none
+ *
+ * Take a list and return the number of its elements.
+ *
+ */
 Value *builtin_length(__attribute__((unused)) Env *env, Value *value) {
   ASSERT_ARGC(value, 1, "length");
   ASSERT_IS_LIST(value, 0, "length");
@@ -112,6 +166,13 @@ Value *builtin_length(__attribute__((unused)) Env *env, Value *value) {
   return result;
 }
 
+/*
+ * src/list.c:builtin_reverse
+ * buildyourownlisp.com correspondence: none
+ *
+ * Take a list and return all its elements in reverse order.
+ *
+ */
 Value *builtin_reverse(__attribute__((unused)) Env *env, Value *value) {
   ASSERT_ARGC(value, 1, "reverse");
   ASSERT_IS_LIST(value, 0, "reverse");
@@ -129,6 +190,14 @@ Value *builtin_reverse(__attribute__((unused)) Env *env, Value *value) {
   return list;
 }
 
+/*
+ * src/list.c:builtin_init
+ * buildyourownlisp.com correspondence: none
+ *
+ * Take a list and return a new list with all its elements but the last one.
+ * Conceptually equivalent to reverse-tail-reverse.
+ *
+ */
 Value *builtin_init(__attribute__((unused)) Env *env, Value *value) {
   ASSERT_ARGC(value, 1, "init");
   ASSERT_IS_LIST(value, 0, "init");
@@ -141,6 +210,16 @@ Value *builtin_init(__attribute__((unused)) Env *env, Value *value) {
   return result;
 }
 
+/*
+ * src/list.c:builtin_def
+ * buildyourownlisp.com correspondence: builtin_def
+ *
+ * Syntax: (def {list of length n} a b c ... n)
+ * Put values in the environment. The elements of the first argument list are
+ * keys, and their corresponding values are the subsequent arguments, in the
+ * same order as the list.
+ *
+ */
 Value *builtin_def(Env *env, Value *value) {
   ASSERT_IS_LIST(value, 0, "def");
 

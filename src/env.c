@@ -1,5 +1,12 @@
 #include "env.h"
 
+/*
+ * src/env.c:make_env
+ * buildyourownlisp.com correspondence: lenv_new
+ *
+ * Create an empty Environment.
+ *
+ */
 Env *make_env() {
   Env *env = malloc(sizeof(Env));
   env->count = 0;
@@ -8,6 +15,13 @@ Env *make_env() {
   return env;
 }
 
+/*
+ * src/env.c:delete_env
+ * buildyourownlisp.com correspondence: lenv_del
+ *
+ * Release the memory used by an Env, at the end of the program.
+ *
+ */
 void delete_env(Env *env) {
   for (int index = 0; index < env->count; index++) {
     free(env->keys[index]);
@@ -18,8 +32,15 @@ void delete_env(Env *env) {
   free(env);
 }
 
+/*
+ * src/env.c:get_value
+ * buildyourownlisp.com correspondence: lenv_get
+ *
+ * Return the value associated with the given key in the given Env.
+ *
+ */
 Value *get_value(Env *env, Value *key) {
-  // Must be called with a Symbol key, or everything crashes
+  /* Must be called with a Symbol key, or everything crashes */
   if (!IS_SYMBOL(key)) {
     exit(EX_SOFTWARE);
   }
@@ -37,6 +58,13 @@ Value *get_value(Env *env, Value *key) {
   return make_error("unbound symbol '%s'.", key->symbol);
 }
 
+/*
+ * src/env.c:put_value
+ * buildyourownlisp.com correspondence: lenv_put
+ *
+ * Insert a value into the corresponding key, updating it if already there.
+ *
+ */
 void put_value(Env *env, Value *key, Value *value) {
   // Must be called with a Symbol key, or everything crashes
   if (!IS_SYMBOL(key)) {
@@ -66,7 +94,13 @@ void put_value(Env *env, Value *key, Value *value) {
   env->values[env->count - 1] = copy_value(value);
 }
 
-/* Make the given built-in available for any Lye program */
+/*
+ * src/env.c:register_builtin
+ * buildyourownlisp.com correspondence: lenv_add_builtin
+ *
+ * Make the given built-in available for any Lye program.
+ *
+ */
 void register_builtin(Env *env, Symbol name, Builtin builtin) {
   Value *key = make_symbol(name);
   Value *function = make_function(builtin, name);
@@ -75,9 +109,15 @@ void register_builtin(Env *env, Symbol name, Builtin builtin) {
   delete_value(function);
 }
 
-/* Register the set of built-ins */
+/*
+ * src/env.c:register_builtins
+ * buildyourownlisp.com correspondence: lenv_add_builtins
+ *
+ * Register the set of all built-ins.
+ *
+ */
 void register_builtins(Env *env) {
-  /* Function definition */
+  /* Variable definition */
   register_builtin(env, "def", builtin_def);
 
   /* List operations */

@@ -9,12 +9,30 @@
 
 #include "repl.h"
 
+/*
+ * src/main.c:run_file
+ * buildyourownlisp.com correspondence: none
+ *
+ * Interpret code contained in a Lye source file.
+ *
+ */
 static void run_file(Env *env, Parser *parser, char *filename) {
   char *source = read_file(filename);
   run_string(env, parser, source);
   free(source);
 }
 
+/*
+ * src/main.c:main
+ * buildyourownlisp.com correspondence: {changing filename}, function `main`
+ *
+ * Run the Lye interpreter. If the `lye` command is called with no arguments,
+ * it opens a REPL. If a single argument is passed, it is assumed to be a source
+ * file which is then interpreted. The `-s` command line option allows for Lye
+ * code, enclosed within quote marks, to be passed directly as an argument to be
+ * executed.
+ *
+ */
 int main(int argc, char **argv) {
   Parser *parser = create_parser();
   Env *environment = make_env();
