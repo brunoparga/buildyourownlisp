@@ -1,5 +1,12 @@
 #include "parser.h"
 
+/*
+ * src/parser.c:create_parser
+ * buildyourownlisp.com correspondence: main
+ *
+ * Create an MPC parser. It has one field per grammar rule.
+ *
+ */
 Parser *create_parser() {
   Parser *parser = malloc(sizeof(Parser));
   parser->Number = mpc_new("number");
@@ -74,7 +81,13 @@ static Value *expressionize(mpc_ast_t *ast) {
   return value;
 }
 
-/* Parse an expression, returning its Value */
+/*
+ * src/parser.c:parse
+ * buildyourownlisp.com correspondence: main
+ *
+ * Parse an expression according to the rules of Lye, returning its Value
+ *
+ */
 Value *parse(Env *env, Parser *parser, char *input) {
   /* Define parsers for our Language */
   mpca_lang_contents(MPCA_LANG_DEFAULT, GRAMMAR_FILE, parser->Number,
@@ -99,6 +112,13 @@ Value *parse(Env *env, Parser *parser, char *input) {
   return value;
 }
 
+/*
+ * src/parser.c:cleanup_parser
+ * buildyourownlisp.com correspondence: main
+ *
+ * Free the memory used by the Parser
+ *
+ */
 void cleanup_parser(Parser *parser) {
   /* Undefine and Delete our Parsers */
   mpc_cleanup(7, parser->Number, parser->Symbol, parser->Sexpr, parser->Qexpr,

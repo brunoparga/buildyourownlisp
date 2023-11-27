@@ -1,6 +1,16 @@
 #include "value.h"
 
-/* Create a new number Value */
+// ============================
+// Constructors and destructors
+// ============================
+
+/*
+ * src/value.c:make_number
+ * buildyourownlisp.com correspondence: lval_num
+ *
+ * Create a new number Value from the provided double.
+ *
+ */
 Value *make_number(double number) {
   Value *value = malloc(sizeof(Value));
   value->type = NUMBER;
@@ -8,7 +18,13 @@ Value *make_number(double number) {
   return value;
 }
 
-/* Create a new symbol Value */
+/*
+ * src/value.c:make_symbol
+ * buildyourownlisp.com correspondence: lval_sym
+ *
+ * Create a new symbol Value from the provided string.
+ *
+ */
 Value *make_symbol(Symbol symbol) {
   Value *value = malloc(sizeof(Value));
   value->type = SYMBOL;
@@ -17,7 +33,13 @@ Value *make_symbol(Symbol symbol) {
   return value;
 }
 
-/* Create a new function Value */
+/*
+ * src/value.c:make_function
+ * buildyourownlisp.com correspondence: lval_fun
+ *
+ * Create a new function Value from the provided name and builtin.
+ *
+ */
 Value *make_function(Builtin builtin, Symbol name) {
   Value *value = malloc(sizeof(Value));
   value->type = FUNCTION;
@@ -27,7 +49,13 @@ Value *make_function(Builtin builtin, Symbol name) {
   return value;
 }
 
-/* Create a new S-expression Value */
+/*
+ * src/value.c:make_sexpr
+ * buildyourownlisp.com correspondence: lval_sexpr
+ *
+ * Create a new, empty S-expression Value.
+ *
+ */
 Value *make_sexpr() {
   Value *value = malloc(sizeof(Value));
   value->type = SEXPR;
@@ -36,7 +64,13 @@ Value *make_sexpr() {
   return value;
 }
 
-/* Create a new Q-expression Value */
+/*
+ * src/value.c:make_qexpr
+ * buildyourownlisp.com correspondence: lval_expr
+ *
+ * Create a new, empty Q-expression Value.
+ *
+ */
 Value *make_qexpr() {
   Value *value = malloc(sizeof(Value));
   value->type = QEXPR;
@@ -45,7 +79,14 @@ Value *make_qexpr() {
   return value;
 }
 
-/* Create a new error Value */
+/*
+ * src/value.c:make_error
+ * buildyourownlisp.com correspondence: lval_err
+ *
+ * Create a new error Value. This function is variadic, taking a printf-like
+ * format and any number of arguments to fill in the format.
+ *
+ */
 Value *make_error(char *format, ...) {
   Value *value = malloc(sizeof(Value));
   value->type = ERROR;
@@ -69,6 +110,15 @@ Value *make_error(char *format, ...) {
   return value;
 }
 
+/*
+ * src/value.c:va_list_make_error
+ * buildyourownlisp.com correspondence: none
+ *
+ * Create a new error Value. This is the non-variadic version of the function;
+ * it may be called by variadic functions that group the extra arguments
+ * (beside `format`) into a `va_list` structure.
+ *
+ */
 Value *va_list_make_error(char *format, va_list pieces) {
   char *error = malloc(512);
   vsprintf(error, format, pieces);
@@ -77,6 +127,13 @@ Value *va_list_make_error(char *format, va_list pieces) {
   return value;
 }
 
+/*
+ * src/value.c:delete_value
+ * buildyourownlisp.com correspondence: lval_del
+ *
+ * Release the memory taken up by a Value, including its nested Values.
+ *
+ */
 void delete_value(Value *value) {
   switch (value->type) {
   /* Do nothing special for numbers */
@@ -108,7 +165,19 @@ void delete_value(Value *value) {
   free(value);
 }
 
-/* Return the count of values in the cell of an S-expression */
+// ========================
+// Information about Values
+// ========================
+
+/*
+ * src/value.c:count
+ * buildyourownlisp.com correspondence: none
+ *
+ * Return the count of values in the cell of an S-expression. Unlike the
+ * `length` builtin, which returns a Value, this utility function returns an
+ * integer for use within the interpreter.
+ *
+ */
 int count(Value *sexpr_value) {
   switch (sexpr_value->type) {
   case QEXPR:
@@ -121,19 +190,13 @@ int count(Value *sexpr_value) {
   }
 }
 
-/* Return the element at the given index, contained in an S- or Q-expression */
-Value *element_at(Value *sexpr_value, int index) {
-  switch (sexpr_value->type) {
-  case QEXPR:
-  case SEXPR:
-    return sexpr_value->sexpr.cell[index];
-  default:
-    return make_error(
-        "cannot get element from a Value that is not an S- or Q-expression.");
-  }
-}
-
-/* Read the type of a value */
+/*
+ * src/value.c:get_type
+ * buildyourownlisp.com correspondence: ltype_name
+ *
+ * Return the type of a Value as a string, to be used e.g. in error messages.
+ *
+ */
 char *get_type(Value *value) {
   switch (value->type) {
   case NUMBER:
@@ -152,10 +215,18 @@ char *get_type(Value *value) {
   return "Unreachable value placed here to please the deities of compilation.";
 }
 
-/* Print a Value */
+// Forward declaration due to mutual recursion
 static void print_value_no_newline(Value *value);
 
-static void print_expression(Value *value, char open, char close) {
+/*
+ * src/value.c:print_list
+ * buildyourownlisp.com correspondence: lval_print_expr
+ *
+ * Print the opening and closing characters of a list (S- or Q-expression),
+ * and in-between call the printing function for each element.
+ *
+ */
+static void print_list(Value *value, char open, char close) {
   putchar(open);
   for (int index = 0; index < count(value); index++) {
     /* Print Value contained within */
@@ -170,6 +241,14 @@ static void print_expression(Value *value, char open, char close) {
   putchar(close);
 }
 
+/*
+ * src/value.c:print_value_no_newline
+ * buildyourownlisp.com correspondence: lval_print
+ *
+ * Print a Value. Since this can be nested within a list, no newline is
+ * printed at the end.
+ *
+ */
 static void print_value_no_newline(Value *value) {
   switch (value->type) {
   case NUMBER: {
@@ -188,10 +267,10 @@ static void print_value_no_newline(Value *value) {
     printf("%s", value->function.name);
     break;
   case SEXPR:
-    print_expression(value, '(', ')');
+    print_list(value, '(', ')');
     break;
   case QEXPR:
-    print_expression(value, '{', '}');
+    print_list(value, '{', '}');
     break;
   case ERROR:
     printf("Error: %s", value->error);
@@ -199,6 +278,26 @@ static void print_value_no_newline(Value *value) {
   }
 }
 
+/*
+ * src/value.c:print_value
+ * buildyourownlisp.com correspondence: lval_println
+ *
+ * Print a complete Value, with a newline in the end.
+ *
+ */
+void print_value(Value *value) {
+  print_value_no_newline(value);
+  putchar('\n');
+}
+
+/*
+ * src/value.c:number_to_string
+ * buildyourownlisp.com correspondence: none
+ *
+ * Return the string equivalent of a number Value. Used in error reporting in
+ * arithmetic operations.
+ *
+ */
 char *number_to_string(Value *value, char *result) {
   // Must be called with a Number value, or everything crashes
   if (!IS_NUMBER(value)) {
@@ -219,11 +318,41 @@ char *number_to_string(Value *value, char *result) {
   return result;
 }
 
-void print_value(Value *value) {
-  print_value_no_newline(value);
-  putchar('\n');
+// ==================
+// Value manipulation
+// ==================
+
+/*
+ * src/value.c:element_at
+ * buildyourownlisp.com correspondence: none
+ *
+ * Return the Value at the given index from an S- or Q-expression. This would
+ * be the equivalent of square bracket array access in C-like languages. The
+ * expression remains unchanged (unlike `pop_value`, which removes the popped
+ * element but maintains the rest of the list, and `take_value`, which discards
+ * the list.)
+ *
+ */
+Value *element_at(Value *sexpr_value, int index) {
+  switch (sexpr_value->type) {
+  case QEXPR:
+  case SEXPR:
+    return sexpr_value->sexpr.cell[index];
+  default:
+    return make_error(
+        "cannot get element from a Value that is not an S- or Q-expression.");
+  }
 }
 
+/*
+ * src/value.c:pop_value
+ * buildyourownlisp.com correspondence: lval_pop
+ *
+ * Remove and return the Value from the given list at the given index.
+ * Compare with the more destructive `take_value`, which deletes the list, and
+ * the more conservative `element_at`, which maintains the element in place.
+ *
+ */
 Value *pop_value(Value *value, int index) {
   /* Find the value to pop */
   Value *popped = element_at(value, index);
@@ -241,14 +370,32 @@ Value *pop_value(Value *value, int index) {
   return popped;
 }
 
+// Since the most common index to pop is 0, this DRYes up the code
 inline Value *pop(Value *value) { return pop_value(value, 0); }
 
+/*
+ * src/value.c:take_value
+ * buildyourownlisp.com correspondence: lval_take
+ *
+ * Replace an entire list by its element at the given index, destroying the
+ * list. Compare with the less destructive `pop_value` and `element_at`.
+ *
+ */
 Value *take_value(Value *value, int index) {
   Value *popped = pop_value(value, index);
   delete_value(value);
   return popped;
 }
 
+/*
+ * src/value.c:append_value
+ * buildyourownlisp.com correspondence: lval_add
+ *
+ * Append the given Value at the end of the given (S-/Q-Expr) list. This is
+ * used internally by the interpreter, e.g. while parsing lists, as opposed to
+ * `builtin_cons`, which is exposed to the user.
+ *
+ */
 Value *append_value(Value *list, Value *new_value) {
   list->sexpr.count++;
   list->sexpr.cell = realloc(list->sexpr.cell, sizeof(Value *) * count(list));
@@ -257,6 +404,13 @@ Value *append_value(Value *list, Value *new_value) {
   return list;
 }
 
+/*
+ * src/value.c:join_values
+ * buildyourownlisp.com correspondence: lval_join
+ *
+ * Concatenate two lists. Used internally by the interpreter.
+ *
+ */
 Value *join_values(Value *left, Value *right) {
   /* For each cell in `right` add it to `left` */
   while (count(right)) {
@@ -268,6 +422,16 @@ Value *join_values(Value *left, Value *right) {
   return left;
 }
 
+/*
+ * src/value.c:copy_value
+ * buildyourownlisp.com correspondence: lval_copy
+ *
+ * Return a copy of the Value. This is useful in situations where we transform
+ * an input Value and must delete it before returning; if the transformed
+ * version were not a copy, important information from it would be lost due to
+ * it sharing data with the original.
+ *
+ */
 Value *copy_value(Value *value) {
   Value *copy = malloc(sizeof(Value));
   copy->type = value->type;
