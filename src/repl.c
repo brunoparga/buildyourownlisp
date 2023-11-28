@@ -10,7 +10,7 @@
  */
 void run_string(Env *env, Parser *parser, char *source) {
   Value *value = parse(env, parser, source);
-  print_value(value);
+  println_value(value);
   delete_value(value);
 }
 

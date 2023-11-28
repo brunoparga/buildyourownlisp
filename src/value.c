@@ -215,8 +215,35 @@ char *get_type(Value *value) {
   return "Unreachable value placed here to please the deities of compilation.";
 }
 
-// Forward declaration due to mutual recursion
+// Forward declaration due to recursion
 static void print_value_no_newline(Value *value);
+/*
+ * src/value.c:number_to_string
+ * buildyourownlisp.com correspondence: none
+ *
+ * Return the string equivalent of a number Value. Used in error reporting in
+ * arithmetic operations.
+ *
+ */
+char *number_to_string(Value *value, char *result) {
+  // Must be called with a Number value, or everything crashes
+  if (!IS_NUMBER(value)) {
+    exit(EX_SOFTWARE);
+  }
+
+  double rounded = roundf(value->number);
+  if (rounded == value->number) {
+    int size = snprintf(NULL, 0, "%li", (long)rounded);
+    result = realloc(result, size + 1);
+    sprintf(result, "%li", (long)rounded);
+  } else {
+    int size = snprintf(NULL, 0, "%g", value->number);
+    result = realloc(result, size + 1);
+    sprintf(result, "%g", value->number);
+  }
+
+  return result;
+}
 
 /*
  * src/value.c:print_list
@@ -279,43 +306,15 @@ static void print_value_no_newline(Value *value) {
 }
 
 /*
- * src/value.c:print_value
+ * src/value.c:println_value
  * buildyourownlisp.com correspondence: lval_println
  *
  * Print a complete Value, with a newline in the end.
  *
  */
-void print_value(Value *value) {
+void println_value(Value *value) {
   print_value_no_newline(value);
   putchar('\n');
-}
-
-/*
- * src/value.c:number_to_string
- * buildyourownlisp.com correspondence: none
- *
- * Return the string equivalent of a number Value. Used in error reporting in
- * arithmetic operations.
- *
- */
-char *number_to_string(Value *value, char *result) {
-  // Must be called with a Number value, or everything crashes
-  if (!IS_NUMBER(value)) {
-    exit(EX_SOFTWARE);
-  }
-
-  double rounded = roundf(value->number);
-  if (rounded == value->number) {
-    int size = snprintf(NULL, 0, "%li", (long)rounded);
-    result = realloc(result, size + 1);
-    sprintf(result, "%li", (long)rounded);
-  } else {
-    int size = snprintf(NULL, 0, "%g", value->number);
-    result = realloc(result, size + 1);
-    sprintf(result, "%g", value->number);
-  }
-
-  return result;
 }
 
 // ==================
@@ -329,8 +328,8 @@ char *number_to_string(Value *value, char *result) {
  * Return the Value at the given index from an S- or Q-expression. This would
  * be the equivalent of square bracket array access in C-like languages. The
  * expression remains unchanged (unlike `pop_value`, which removes the popped
- * element but maintains the rest of the list, and `take_value`, which discards
- * the list.)
+ * element but maintains the rest of the list, and `take_value`, which
+ * discards the list.)
  *
  */
 Value *element_at(Value *sexpr_value, int index) {
