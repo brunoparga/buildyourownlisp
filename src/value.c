@@ -217,15 +217,17 @@ char *get_type(Value *value) {
 
 // Forward declaration due to recursion
 static void print_value_no_newline(Value *value);
+// static void print_list(Value *value, char open, char close);
+
 /*
- * src/value.c:number_to_string
+ * src/value.c:stringify_number
  * buildyourownlisp.com correspondence: none
  *
  * Return the string equivalent of a number Value. Used in error reporting in
  * arithmetic operations.
  *
  */
-char *number_to_string(Value *value, char *result) {
+static char *stringify_number(Value *value, char *result) {
   // Must be called with a Number value, or everything crashes
   if (!IS_NUMBER(value)) {
     exit(EX_SOFTWARE);
@@ -246,6 +248,41 @@ char *number_to_string(Value *value, char *result) {
 }
 
 /*
+ * src/value.c:stringify
+ * buildyourownlisp.com correspondence: none
+ *
+ * Return a string representation of a Value, for use in print functions.
+ *
+ */
+char *stringify(Value *value, char *result) {
+  switch (value->type) {
+  case NUMBER:
+    result = stringify_number(value, result);
+    break;
+  case SYMBOL:
+    result = value->symbol;
+    break;
+  case FUNCTION:
+    result = value->function.name;
+    break;
+  case SEXPR:
+    return ("()");
+    // print_list(value, '(', ')');
+    // break;
+  case QEXPR:
+    return ("{}");
+    // print_list(value, '{', '}');
+    // break;
+  case ERROR:
+    result = realloc(result, sizeof(value->error) + 7);
+    snprintf(result, sizeof(result) + 7, "Error: %s", value->error);
+    break;
+  }
+
+  return result;
+}
+
+/*
  * src/value.c:print_list
  * buildyourownlisp.com correspondence: lval_print_expr
  *
@@ -253,20 +290,20 @@ char *number_to_string(Value *value, char *result) {
  * and in-between call the printing function for each element.
  *
  */
-static void print_list(Value *value, char open, char close) {
-  putchar(open);
-  for (int index = 0; index < count(value); index++) {
-    /* Print Value contained within */
-    print_value_no_newline(element_at(value, index));
+// static void print_list(Value *value, char open, char close) {
+//   putchar(open);
+//   for (int index = 0; index < count(value); index++) {
+//     /* Print Value contained within */
+//     print_value_no_newline(element_at(value, index));
 
-    /* Don't print trailing space if last element */
-    if (index != count(value) - 1) {
-      putchar(' ');
-    }
-  }
+//     /* Don't print trailing space if last element */
+//     if (index != count(value) - 1) {
+//       putchar(' ');
+//     }
+//   }
 
-  putchar(close);
-}
+//   putchar(close);
+// }
 
 /*
  * src/value.c:print_value_no_newline
@@ -277,32 +314,9 @@ static void print_list(Value *value, char open, char close) {
  *
  */
 static void print_value_no_newline(Value *value) {
-  switch (value->type) {
-  case NUMBER: {
-    double rounded = roundf(value->number);
-    if (rounded == value->number) {
-      printf("%li", (long)rounded);
-    } else {
-      printf("%g", value->number);
-    }
-    break;
-  }
-  case SYMBOL:
-    printf("%s", value->symbol);
-    break;
-  case FUNCTION:
-    printf("%s", value->function.name);
-    break;
-  case SEXPR:
-    print_list(value, '(', ')');
-    break;
-  case QEXPR:
-    print_list(value, '{', '}');
-    break;
-  case ERROR:
-    printf("Error: %s", value->error);
-    break;
-  }
+  char *result = stringify(value, NULL);
+  printf("%s", result);
+  free(result);
 }
 
 /*
