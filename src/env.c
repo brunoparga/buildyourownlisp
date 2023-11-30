@@ -23,6 +23,7 @@ Env *make_env() {
   env->count = 0;
   env->keys = NULL;
   env->values = NULL;
+  env->is_builtin = NULL;
   return env;
 }
 
@@ -40,6 +41,7 @@ void delete_env(Env *env) {
   }
   free(env->keys);
   free(env->values);
+  free(env->is_builtin);
   free(env);
 }
 
@@ -80,21 +82,28 @@ Value *get_value(Env *env, Value *key) {
  * Insert a value into the corresponding key, updating it if already there.
  *
  */
-void put_value(Env *env, Value *key, Value *value) {
+Value *put_value(Env *env, Value *key, Value *value, int is_builtin) {
   // Must be called with a Symbol key, or everything crashes
   if (!IS_SYMBOL(key)) {
     exit(EX_SOFTWARE);
   }
 
-  /* First, check if the key is already present */
+  Value *value_copy = copy_value(value);
+
   for (int index = 0; index < env->count; index++) {
-    /* If it is... */
+  /* First, check if the key is already present */
     if (strcmp(env->keys[index], key->symbol) == 0) {
-      /* Delete the existing value... */
-      delete_value(env->values[index]);
-      /* And substitute the provided one */
-      env->values[index] = copy_value(value);
-      return;
+    /* If it is... */
+      if (env->is_builtin[index]) {
+        /* And it is not a builtin... */
+        delete_value(value);
+        return make_error("cannot redefine builtin function %s.", key->symbol);
+      } else {
+        /* Substitute the provided one */
+        env->values[index] = value_copy;
+        env->is_builtin[index] = is_builtin;
+        return value_copy;
+      }
     }
   }
 
@@ -102,11 +111,16 @@ void put_value(Env *env, Value *key, Value *value) {
   env->count++;
   env->keys = realloc(env->keys, sizeof(Symbol) * env->count);
   env->values = realloc(env->values, sizeof(Value *) * env->count);
+  env->is_builtin = realloc(env->is_builtin, sizeof(Value *) * env->count);
 
   /* Insert the new key and value */
   env->keys[env->count - 1] = malloc(strlen(key->symbol) + 1);
   strcpy(env->keys[env->count - 1], key->symbol);
-  env->values[env->count - 1] = copy_value(value);
+  env->values[env->count - 1] = value_copy;
+  env->is_builtin[env->count - 1] = is_builtin;
+
+  /* Return the inserted Value */
+  return value_copy;
 }
 
 // =================================
@@ -129,28 +143,25 @@ Value *builtin_def(Env *env, Value *value) {
   /* The first argument is a list of symbols */
   Value *symbols = element_at(value, 0);
 
-  /* Ensure all the elements are indeed symbols, and that none of them tries
-  to redefine an existing builtin */
+  /* Ensure all the elements are indeed symbols */
   for (int index = 0; index < count(symbols); index++) {
     ASSERT_IS_SYMBOL(value, element_at(symbols, index), "def");
-    for (int jndex = 0; jndex < BUILTINS_COUNT; jndex++) {
-      if (strcmp(builtin_names[jndex], element_at(symbols, index)->symbol) == 0) {
-        return make_error("cannot redefine builtin function %s.", builtin_names[jndex]);
-      }
-    }
   }
 
   /* Ensure the number of symbols and values matches */
-  ASSERT(value, count(symbols) == count(value) - 1, "def",
+  ASSERT(value, count(symbols) == count(value) - 1, BASE_FORMAT, "def",
          "the same number of symbols and values.");
 
-  /* Assign copies of values to symbols */
-  for (int index = 0; index < count(symbols); index++) {
-    put_value(env, element_at(symbols, index), element_at(value, index + 1));
+  /* Assign copies of values to symbols. The operation might fail if the user
+  tries to redefine a Lye builtin. */
+  Value *maybe_error;
+  int index;
+  for (index = 0; index < count(symbols); index++) {
+    maybe_error = put_value(env, element_at(symbols, index),
+                            element_at(value, index + 1), 0);
   }
 
-  delete_value(value);
-  return make_symbol("def");
+  return IS_ERROR(maybe_error) ? maybe_error : value->sexpr.cell[index];
 }
 
 /*
@@ -189,7 +200,7 @@ Value *builtin_print_env(Env *env, Value *value) {
 static void register_builtin(Env *env, Symbol name, Builtin builtin) {
   Value *key = make_symbol(name);
   Value *function = make_function(builtin, name);
-  put_value(env, key, function);
+  put_value(env, key, function, 1);
   delete_value(key);
   delete_value(function);
 }

@@ -27,6 +27,7 @@ typedef struct Env {
   int count;
   Symbol *keys;
   Value **values;
+  int *is_builtin;
 } Env;
 
 /* Environment constructor and destructor */
@@ -35,7 +36,7 @@ void delete_env(Env *env);
 
 /* Store and retrieve */
 Value *get_value(Env *env, Value *key);
-void put_value(Env *env, Value *key, Value *value);
+Value *put_value(Env *env, Value *key, Value *value, int is_builtin);
 
 /* Register language built-ins */
 void register_builtins(Env *env);
