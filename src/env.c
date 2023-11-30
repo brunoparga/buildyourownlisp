@@ -1,6 +1,12 @@
 #include "env.h"
 #include "value.h"
 
+#define BUILTINS_COUNT 19
+char builtin_names[BUILTINS_COUNT][10] = {
+    "def",  "print-env", "list",    "eval", "head", "tail", "join",
+    "cons", "length",    "reverse", "init", "+",    "-",    "*",
+    "/",    "^",         "%",       "min",  "max"};
+
 // ==========================
 // Constructor and destructor
 // ==========================
@@ -123,9 +129,15 @@ Value *builtin_def(Env *env, Value *value) {
   /* The first argument is a list of symbols */
   Value *symbols = element_at(value, 0);
 
-  /* Ensure all the elements are indeed symbols */
+  /* Ensure all the elements are indeed symbols, and that none of them tries
+  to redefine an existing builtin */
   for (int index = 0; index < count(symbols); index++) {
     ASSERT_IS_SYMBOL(value, element_at(symbols, index), "def");
+    for (int jndex = 0; jndex < BUILTINS_COUNT; jndex++) {
+      if (strcmp(builtin_names[jndex], element_at(symbols, index)->symbol) == 0) {
+        return make_error("cannot redefine builtin function %s.", builtin_names[jndex]);
+      }
+    }
   }
 
   /* Ensure the number of symbols and values matches */
@@ -190,28 +202,19 @@ static void register_builtin(Env *env, Symbol name, Builtin builtin) {
  *
  */
 void register_builtins(Env *env) {
-  /* Environment operations */
-  register_builtin(env, "def", builtin_def);
-  register_builtin(env, "print-env", builtin_print_env);
+  Builtin builtin_functions[BUILTINS_COUNT] = {
+      /* Environment operations */
+      builtin_def, builtin_print_env,
 
-  /* List operations */
-  register_builtin(env, "list", builtin_list);
-  register_builtin(env, "head", builtin_head);
-  register_builtin(env, "tail", builtin_tail);
-  register_builtin(env, "join", builtin_join);
-  register_builtin(env, "eval", builtin_eval);
-  register_builtin(env, "cons", builtin_cons);
-  register_builtin(env, "length", builtin_length);
-  register_builtin(env, "reverse", builtin_reverse);
-  register_builtin(env, "init", builtin_init);
+      /* List operations */
+      builtin_list, builtin_eval, builtin_head, builtin_tail, builtin_join,
+      builtin_cons, builtin_length, builtin_reverse, builtin_init,
 
-  /* Arithmetical operations*/
-  register_builtin(env, "+", builtin_add);
-  register_builtin(env, "-", builtin_subtract);
-  register_builtin(env, "*", builtin_multiply);
-  register_builtin(env, "/", builtin_divide);
-  register_builtin(env, "%", builtin_modulo);
-  register_builtin(env, "^", builtin_exp);
-  register_builtin(env, "min", builtin_min);
-  register_builtin(env, "max", builtin_max);
+      /* Arithmetical operations*/
+      builtin_add, builtin_subtract, builtin_multiply, builtin_divide,
+      builtin_exp, builtin_modulo, builtin_min, builtin_max};
+
+  for (int index = 0; index < BUILTINS_COUNT; index++) {
+    register_builtin(env, builtin_names[index], builtin_functions[index]);
+  }
 }
