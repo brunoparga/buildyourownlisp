@@ -16,6 +16,8 @@
 #include <string.h>
 #include <sysexits.h>
 
+#include "../utils/realloc_string.h"
+
 /* Forward declarations */
 typedef char *Symbol;
 typedef char *ErrorMsg;
