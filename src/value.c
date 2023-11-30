@@ -259,9 +259,10 @@ static char *stringify_list(Value *value, char *open, char *close) {
     char *element_string = stringify(element_at(value, index));
     result = realloc(result, strlen(result) + strlen(element_string) + 1);
     strcat(result, element_string);
+    free(element_string);
     /* Don't print trailing space if last element */
     if (index != length - 1) {
-      result = realloc(result, strlen(result) + 1);
+      result = realloc(result, strlen(result) + 2);
       strcat(result, " ");
     }
   }
