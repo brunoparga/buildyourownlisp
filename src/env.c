@@ -138,7 +138,7 @@ Value *builtin_def(Env *env, Value *value) {
   }
 
   delete_value(value);
-  return make_sexpr();
+  return make_symbol("def");
 }
 
 /*
