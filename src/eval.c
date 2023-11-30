@@ -22,12 +22,13 @@ static Value *evaluate_sexpr(Env *env, Value *value) {
   }
 
   /* Singleton expression */
-  if (count(value) == 1) {
-    return take_value(value, 0);
+  Value *first = pop(value);
+  if (count(value) == 0 && (!IS_FUNCTION(first) || strcmp(first->function.name, "print-env") != 0)) {
+    delete_value(value);
+    return first;
   }
 
   /* Ensure first element is a function after evaluation */
-  Value *first = pop(value);
   if (!IS_FUNCTION(first)) {
     Value *error =
         make_error("S-expression must start with a function, found type %s.",

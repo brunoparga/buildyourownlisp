@@ -1,4 +1,5 @@
 #include "env.h"
+#include "value.h"
 
 // ==========================
 // Constructor and destructor
@@ -138,6 +139,28 @@ Value *builtin_def(Env *env, Value *value) {
 
   delete_value(value);
   return make_sexpr();
+}
+
+/*
+ * src/env.c:print_env
+ * buildyourownlisp.com correspondence: none
+ *
+ * Print all the variables in the environment and their corresponding Values.
+ *
+ */
+static void print_env(Env *env) {
+  printf("Current environment:\n");
+  for (int index = 0; index < env->count; index++) {
+    printf("    %s: ", env->keys[index]);
+    println_value(env->values[index]);
+  }
+  printf("There are a total of %d variables defined.\n", env->count);
+}
+
+Value *builtin_print_env(Env *env, Value *value) {
+  print_env(env);
+  delete_value(value);
+  return make_symbol("print-env");
 }
 
 // =======================
