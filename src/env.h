@@ -38,7 +38,6 @@ Value *get_value(Env *env, Value *key);
 void put_value(Env *env, Value *key, Value *value);
 
 /* Register language built-ins */
-void register_builtin(Env *env, Symbol name, Builtin function);
 void register_builtins(Env *env);
 
 #endif

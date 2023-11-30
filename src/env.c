@@ -1,5 +1,9 @@
 #include "env.h"
 
+// ==========================
+// Constructor and destructor
+// ==========================
+
 /*
  * src/env.c:make_env
  * buildyourownlisp.com correspondence: lenv_new
@@ -31,6 +35,10 @@ void delete_env(Env *env) {
   free(env->values);
   free(env);
 }
+
+// ==================
+// Store and retrieve
+// ==================
 
 /*
  * src/env.c:get_value
@@ -94,6 +102,48 @@ void put_value(Env *env, Value *key, Value *value) {
   env->values[env->count - 1] = copy_value(value);
 }
 
+// =================================
+// Lye environment-related functions
+// =================================
+
+/*
+ * src/list.c:builtin_def
+ * buildyourownlisp.com correspondence: builtin_def
+ *
+ * Syntax: (def {list of length n} a b c ... n)
+ * Put values in the environment. The elements of the first argument list are
+ * keys, and their corresponding values are the subsequent arguments, in the
+ * same order as the list.
+ *
+ */
+Value *builtin_def(Env *env, Value *value) {
+  ASSERT_IS_LIST(value, 0, "def");
+
+  /* The first argument is a list of symbols */
+  Value *symbols = element_at(value, 0);
+
+  /* Ensure all the elements are indeed symbols */
+  for (int index = 0; index < count(symbols); index++) {
+    ASSERT_IS_SYMBOL(value, element_at(symbols, index), "def");
+  }
+
+  /* Ensure the number of symbols and values matches */
+  ASSERT(value, count(symbols) == count(value) - 1, "def",
+         "the same number of symbols and values.");
+
+  /* Assign copies of values to symbols */
+  for (int index = 0; index < count(symbols); index++) {
+    put_value(env, element_at(symbols, index), element_at(value, index + 1));
+  }
+
+  delete_value(value);
+  return make_sexpr();
+}
+
+// =======================
+// Lye builtin registering
+// =======================
+
 /*
  * src/env.c:register_builtin
  * buildyourownlisp.com correspondence: lenv_add_builtin
@@ -101,7 +151,7 @@ void put_value(Env *env, Value *key, Value *value) {
  * Make the given built-in available for any Lye program.
  *
  */
-void register_builtin(Env *env, Symbol name, Builtin builtin) {
+static void register_builtin(Env *env, Symbol name, Builtin builtin) {
   Value *key = make_symbol(name);
   Value *function = make_function(builtin, name);
   put_value(env, key, function);
@@ -117,8 +167,9 @@ void register_builtin(Env *env, Symbol name, Builtin builtin) {
  *
  */
 void register_builtins(Env *env) {
-  /* Variable definition */
+  /* Environment operations */
   register_builtin(env, "def", builtin_def);
+  register_builtin(env, "print-env", builtin_print_env);
 
   /* List operations */
   register_builtin(env, "list", builtin_list);

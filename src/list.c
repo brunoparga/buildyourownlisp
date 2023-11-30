@@ -209,37 +209,3 @@ Value *builtin_init(__attribute__((unused)) Env *env, Value *value) {
 
   return result;
 }
-
-/*
- * src/list.c:builtin_def
- * buildyourownlisp.com correspondence: builtin_def
- *
- * Syntax: (def {list of length n} a b c ... n)
- * Put values in the environment. The elements of the first argument list are
- * keys, and their corresponding values are the subsequent arguments, in the
- * same order as the list.
- *
- */
-Value *builtin_def(Env *env, Value *value) {
-  ASSERT_IS_LIST(value, 0, "def");
-
-  /* The first argument is a list of symbols */
-  Value *symbols = element_at(value, 0);
-
-  /* Ensure all the elements are indeed symbols */
-  for (int index = 0; index < count(symbols); index++) {
-    ASSERT_IS_SYMBOL(value, element_at(symbols, index), "def");
-  }
-
-  /* Ensure the number of symbols and values matches */
-  ASSERT(value, count(symbols) == count(value) - 1, "def",
-         "the same number of symbols and values.");
-
-  /* Assign copies of values to symbols */
-  for (int index = 0; index < count(symbols); index++) {
-    put_value(env, element_at(symbols, index), element_at(value, index + 1));
-  }
-
-  delete_value(value);
-  return make_sexpr();
-}

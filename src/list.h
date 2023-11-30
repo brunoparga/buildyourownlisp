@@ -19,6 +19,5 @@ Value *builtin_cons(Env *env, Value *value);
 Value *builtin_length(Env *env, Value *value);
 Value *builtin_reverse(Env *env, Value *value);
 Value *builtin_init(Env *env, Value *value);
-Value *builtin_def(Env *env, Value *value);
 
 #endif
