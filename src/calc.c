@@ -97,8 +97,8 @@ static Value *calculate(Value *value, char *op) {
         }
         result->number = (double)int_result;
       } else {
-        char *x = stringify(result, NULL);
-        char *y = stringify(operand, NULL);
+        char *x = stringify(result);
+        char *y = stringify(operand);
         result = numeric_error(
             result, operand,
             "operands of modulo must be integers, found %s and %s.", x, y);
@@ -109,7 +109,7 @@ static Value *calculate(Value *value, char *op) {
     } else if (IS_OP("^")) {
       /* No raising zero to a negative power */
       if (result->number == 0 && operand->number < 0) {
-        char *x = stringify(operand, NULL);
+        char *x = stringify(operand);
         result = numeric_error(
             result, operand,
             "cannot raise 0 to negative power %s (requires dividing by 0).", x);

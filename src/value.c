@@ -215,10 +215,6 @@ char *get_type(Value *value) {
   return "Unreachable value placed here to please the deities of compilation.";
 }
 
-// Forward declaration due to recursion
-static void print_value_no_newline(Value *value);
-// static void print_list(Value *value, char open, char close);
-
 /*
  * src/value.c:stringify_number
  * buildyourownlisp.com correspondence: none
@@ -248,62 +244,70 @@ static char *stringify_number(Value *value, char *result) {
 }
 
 /*
+ * src/value.c:stringify_list
+ * buildyourownlisp.com correspondence: lval_print_expr
+ *
+ * Return the string representation of a list, including its elements.
+ *
+ */
+static char *stringify_list(Value *value, char *open, char *close) {
+  char *result = malloc(strlen(open) + 1);
+  strcpy(result, open);
+
+  int length = count(value);
+  for (int index = 0; index < length; index++) {
+    char *element_string = stringify(element_at(value, index));
+    result = realloc(result, strlen(result) + strlen(element_string) + 1);
+    strcat(result, element_string);
+    /* Don't print trailing space if last element */
+    if (index != length - 1) {
+      result = realloc(result, strlen(result) + 1);
+      strcat(result, " ");
+    }
+  }
+  result = realloc(result, strlen(result) + 2);
+  strcat(result, close);
+
+  return result;
+}
+
+/*
  * src/value.c:stringify
  * buildyourownlisp.com correspondence: none
  *
  * Return a string representation of a Value, for use in print functions.
  *
  */
-char *stringify(Value *value, char *result) {
+char *stringify(Value *value) {
+  char *result = NULL;
   switch (value->type) {
   case NUMBER:
     result = stringify_number(value, result);
     break;
   case SYMBOL:
-    result = value->symbol;
+    result = realloc(result, strlen(value->symbol) + 1);
+    strcpy(result, value->symbol);
     break;
   case FUNCTION:
-    result = value->function.name;
+    result = realloc(result, strlen(value->function.name) + 1);
+    strcpy(result, value->function.name);
     break;
   case SEXPR:
-    return ("()");
-    // print_list(value, '(', ')');
-    // break;
+    result = stringify_list(value, "(", ")");
+    break;
   case QEXPR:
-    return ("{}");
-    // print_list(value, '{', '}');
-    // break;
+    result = stringify_list(value, "{", "}");
+    break;
   case ERROR:
-    result = realloc(result, sizeof(value->error) + 7);
-    snprintf(result, sizeof(result) + 7, "Error: %s", value->error);
+    result = realloc(result, strlen(value->error) + 8);
+    result[0] = '\0';
+    strcpy(result, "Error: ");
+    strcat(result, value->error);
     break;
   }
 
   return result;
 }
-
-/*
- * src/value.c:print_list
- * buildyourownlisp.com correspondence: lval_print_expr
- *
- * Print the opening and closing characters of a list (S- or Q-expression),
- * and in-between call the printing function for each element.
- *
- */
-// static void print_list(Value *value, char open, char close) {
-//   putchar(open);
-//   for (int index = 0; index < count(value); index++) {
-//     /* Print Value contained within */
-//     print_value_no_newline(element_at(value, index));
-
-//     /* Don't print trailing space if last element */
-//     if (index != count(value) - 1) {
-//       putchar(' ');
-//     }
-//   }
-
-//   putchar(close);
-// }
 
 /*
  * src/value.c:print_value_no_newline
@@ -314,7 +318,7 @@ char *stringify(Value *value, char *result) {
  *
  */
 static void print_value_no_newline(Value *value) {
-  char *result = stringify(value, NULL);
+  char *result = stringify(value);
   printf("%s", result);
   free(result);
 }
