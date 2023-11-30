@@ -9,7 +9,7 @@ You can enter a REPL with just the command:
 ```bash
 $ build/lye
 
-Lye Version 0.0.0.4
+Lye Version 0.0.0.11
 Press Ctrl+c to Exit
 
 lye>

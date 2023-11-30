@@ -39,8 +39,8 @@ int main(int argc, char **argv) {
   register_builtins(environment);
 
   if (argc == 1) {
-    puts("Lye Version 0.0.0.4");
-    puts("Press Ctrl+c to Exit\n");
+    puts("Lye Version 0.0.0.11");
+    puts("Enter 'quit' to exit\n");
     repl(environment, parser);
   } else if (argc == 2) {
     run_file(environment, parser, argv[1]);

@@ -91,10 +91,10 @@ Value *put_value(Env *env, Value *key, Value *value, int is_builtin) {
   Value *value_copy = copy_value(value);
 
   for (int index = 0; index < env->count; index++) {
-  /* First, check if the key is already present */
+    /* First, check if the key is already present */
     if (strcmp(env->keys[index], key->symbol) == 0) {
-    /* If it is... */
-      if (env->is_builtin[index]) {
+      /* If it is... */
+      if (env->is_builtin[index] || strcmp(key->symbol, "quit") == 0) {
         /* And it is not a builtin... */
         delete_value(value);
         return make_error("cannot redefine builtin function %s.", key->symbol);
@@ -180,6 +180,13 @@ static void print_env(Env *env) {
   printf("There are a total of %d variables defined.\n", env->count);
 }
 
+/*
+ * src/env.c:builtin_print_env
+ * buildyourownlisp.com correspondence: none
+ *
+ * A Lye interface to the C function `print_env`.
+ *
+ */
 Value *builtin_print_env(Env *env, Value *value) {
   print_env(env);
   delete_value(value);
@@ -228,4 +235,9 @@ void register_builtins(Env *env) {
   for (int index = 0; index < BUILTINS_COUNT; index++) {
     register_builtin(env, builtin_names[index], builtin_functions[index]);
   }
+
+  /* `quit` is a fake builtin */
+  Value *quit = make_symbol("quit");
+  put_value(env, quit, quit, 1);
+  delete_value(quit);
 }

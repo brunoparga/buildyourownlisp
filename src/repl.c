@@ -25,6 +25,10 @@ void run_string(Env *env, Parser *parser, char *source) {
 void repl(Env *env, Parser *parser) {
   for (;;) {
     char *input = readline("lye> ");
+    if (strcmp(input, "quit") == 0) {
+      free(input);
+      return;
+    }
     add_history(input);
     run_string(env, parser, input);
     free(input);
