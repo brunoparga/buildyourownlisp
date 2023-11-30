@@ -7,11 +7,11 @@ SOURCES = src/main.c src/calc.c src/env.c src/eval.c src/list.c src/parser.c src
 OBJECTS = src/main.c build/calc.o build/env.o build/eval.o build/list.o build/parser.o build/repl.o build/value.o build/file.o src/assert.h utils/realloc_string.h
 
 test: test/test.c build/lye
-	$(CC) $(CFLAGS) test/test.c -o build/test
-	./build/test
+	$(CC) $(CFLAGS) test/test.c -o lye-test
+	./lye-test
 
 build/lye: $(OBJECTS)
-	$(CC) $(CFLAGS) -o build/lye $(SOURCES) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o lye $(SOURCES) $(LDFLAGS)
 
 build/repl.o: src/repl.c src/repl.h build/parser.o
 	$(COMPILE)

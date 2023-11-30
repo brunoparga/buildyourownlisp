@@ -25,7 +25,7 @@ static inline int is_test(char *path) {
 }
 
 static void build_command(char *source, char *result) {
-  char *lye = "./build/lye";
+  char *lye = "./lye";
   int command_length = strlen(lye) + strlen(source) + 7;
   char concat[command_length];
   memset(concat, 0, command_length);

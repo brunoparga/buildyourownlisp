@@ -1,3 +1,5 @@
 .vscode
 doc/*
 lib/*.o
+lye
+lye-test
