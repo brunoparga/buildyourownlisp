@@ -65,6 +65,7 @@ Value *make_function(Symbol name, Builtin builtin) {
  */
 Value *make_lambda(Symbol name, Value *params, Value *body) {
   Value *value = malloc(sizeof(Value));
+  value->type = FUNCTION;
 
   Function *function = malloc(sizeof(Function));
   function->name = name;
@@ -321,8 +322,18 @@ char *stringify(Value *value) {
     strcpy(result, value->symbol);
     break;
   case FUNCTION:
-    result = realloc(result, strlen(value->function->name) + 1);
-    strcpy(result, value->function->name);
+    if (value->function->builtin) {
+      result = realloc(result, strlen(value->function->name) + 1);
+      strcpy(result, value->function->name);
+    } else {
+      char *params_string = stringify(value->function->params);
+      char *body_string = stringify(value->function->body);
+      result = realloc(result, strlen("(fn )") + strlen(params_string) + 1 +
+                                   strlen(body_string) + 1);
+      sprintf(result, "(fn %s %s)", params_string, body_string);
+      free(params_string);
+      free(body_string);
+    }
     break;
   case SEXPR:
     result = stringify_list(value, "(", ")");

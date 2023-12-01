@@ -34,7 +34,7 @@ Value *call(Env *env, Value *fun, Value *args) {
 
   if (argc == paramc) {
     /* Evaluate a fully applied function */
-    fun->function->env = env;
+    fun->function->env->parent = env;
     return builtin_eval(
         fun->function->env,
         append_value(make_sexpr(), copy_value(fun->function->body)));
