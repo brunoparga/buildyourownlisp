@@ -63,9 +63,7 @@ Value *builtin_def(Env *env, Value *value) {
   Value *symbols = element_at(value, 0);
 
   /* Ensure all the elements are indeed symbols */
-  for (int index = 0; index < count(symbols); index++) {
-    ASSERT_IS_SYMBOL(value, element_at(symbols, index), "def");
-  }
+  ASSERT_ALL_SYMBOLS(symbols, "def");
 
   /* Ensure the number of symbols and values matches */
   ASSERT(value, count(symbols) == count(value) - 1, BASE_FORMAT, "def",
@@ -81,4 +79,25 @@ Value *builtin_def(Env *env, Value *value) {
   }
 
   return IS_ERROR(maybe_error) ? maybe_error : value->sexpr.cell[index];
+}
+
+/*
+ * src/function.c:builtin_lambda
+ * buildyourownlisp.com correspondence: builtin_lambda
+ *
+ * Syntax: (def {list of params} {body as a Q-expr})
+ * Define a new function and store it in the Environment.
+ *
+ */
+Value *builtin_lambda(__attribute__((unused)) Env *env, Value *code) {
+  ASSERT_ARGC(code, 2, "\\");
+  ASSERT_IS_LIST(code, 0, "\\");
+  ASSERT_IS_LIST(code, 1, "\\");
+
+  Value *params = pop(code);
+  ASSERT_ALL_SYMBOLS(params, "\\");
+  Value *body = pop(code);
+  delete_value(code);
+
+  return make_lambda(params, body);
 }

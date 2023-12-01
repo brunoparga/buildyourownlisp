@@ -78,8 +78,25 @@
  */
 #define ASSERT_IS_SYMBOL(value, element, caller)                               \
   do {                                                                         \
-    ASSERT(value, IS_SYMBOL(element), BASE_FORMAT, caller,                     \
-           "a list of symbols.")                                               \
+    ASSERT(value, IS_SYMBOL(element),                                          \
+           "function '%s' must be passed a list of symbols, but value %s has " \
+           "type %s.",                                                         \
+           caller, stringify(element), get_type(element))                      \
+  } while (0)
+
+/*
+ * src/assert.h:ASSERT_ALL_SYMBOLS
+ * buildyourownlisp.com correspondence: none
+ *
+ * Assert that all elements in the given Value (presumed a list) are Symbols.
+ *
+ */
+#define ASSERT_ALL_SYMBOLS(list, caller)                                       \
+  do {                                                                         \
+    int length = count(list);                                                  \
+    for (int index = 0; index < length; index++) {                             \
+      ASSERT_IS_SYMBOL(list, element_at(list, index), #caller);                \
+    }                                                                          \
   } while (0)
 
 /*

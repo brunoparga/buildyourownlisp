@@ -60,7 +60,8 @@ typedef struct Value {
 /* Value constructors and destructor */
 Value *make_number(double number);
 Value *make_symbol(Symbol symbol);
-Value *make_function(Symbol name, Builtin function);
+Value *make_builtin(Symbol name, Builtin function);
+Value *make_lambda(Value *params, Value *body);
 Value *make_sexpr(void);
 Value *make_qexpr(void);
 Value *make_error(char *format, ...);

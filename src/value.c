@@ -37,13 +37,13 @@ Value *make_symbol(Symbol symbol) {
 }
 
 /*
- * src/value.c:make_function
+ * src/value.c:make_builtin
  * buildyourownlisp.com correspondence: lval_fun
  *
  * Create a new function Value from the provided name and builtin.
  *
  */
-Value *make_function(Symbol name, Builtin builtin) {
+Value *make_builtin(Symbol name, Builtin builtin) {
   Value *value = malloc(sizeof(Value));
   value->type = FUNCTION;
 
@@ -60,15 +60,15 @@ Value *make_function(Symbol name, Builtin builtin) {
  * src/value.c:make_lambda
  * buildyourownlisp.com correspondence: lval_lambda
  *
- * Create a new user-defined function Value.
+ * Create a new user-defined function Value. It doesn't have a name; it is
+ * called by the symbol used to `def` it.
  *
  */
-Value *make_lambda(Symbol name, Value *params, Value *body) {
+Value *make_lambda(Value *params, Value *body) {
   Value *value = malloc(sizeof(Value));
   value->type = FUNCTION;
 
   Function *function = malloc(sizeof(Function));
-  function->name = name;
   function->builtin = NULL;
   function->env = make_env();
   function->params = params;
@@ -168,11 +168,11 @@ void delete_value(Value *value) {
   /* Do nothing special for numbers */
   case NUMBER:
     break;
-  /* For builtins we must free their name */
+  /* What to free is different for builtins and user-defined functions */
   case FUNCTION:
-    free(value->function->name);
-    if (!value->function->builtin) {
-      /* We have other stuff to free for user-defined functions */
+    if (value->function->builtin) {
+      free(value->function->name);
+    } else {
       free(value->function->env);
       free(value->function->params);
       free(value->function->body);
@@ -504,13 +504,12 @@ Value *copy_value(Value *value) {
   /* We copy the name and the pointer of the function */
   case FUNCTION: {
     Function *fun_copy = malloc(sizeof(Function));
-    fun_copy->name = malloc(strlen(value->function->name) + 1);
-    strcpy(fun_copy->name, value->function->name);
 
     if (value->function->builtin) {
+      fun_copy->name = malloc(strlen(value->function->name) + 1);
+      strcpy(fun_copy->name, value->function->name);
       fun_copy->builtin = value->function->builtin;
     } else {
-      fun_copy->builtin = NULL;
       fun_copy->env = copy_env(value->function->env);
       fun_copy->params = copy_value(value->function->params);
       fun_copy->body = copy_value(value->function->body);

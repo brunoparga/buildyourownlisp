@@ -12,8 +12,10 @@
 
 /* Define the Function struct */
 typedef struct Function {
+  /* These two are only by builtins */
   Symbol name;
-  Builtin builtin; // NULL for user-defined functions
+  Builtin builtin;
+  /* These three are only used by user-defined functions */
   Env *env;
   Value *params;
   Value *body;
@@ -21,5 +23,6 @@ typedef struct Function {
 
 Value *call(Env *env, Value *fun, Value *args);
 Value *builtin_def(Env *env, Value *value);
+Value *builtin_lambda(Env *env, Value *code);
 
 #endif
