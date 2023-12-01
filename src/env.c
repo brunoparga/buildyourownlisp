@@ -154,43 +154,6 @@ Value *put_value(Env *env, Value *key, Value *value, int is_builtin) {
 // =================================
 
 /*
- * src/list.c:builtin_def
- * buildyourownlisp.com correspondence: builtin_def
- *
- * Syntax: (def {list of length n} a b c ... n)
- * Put values in the environment. The elements of the first argument list are
- * keys, and their corresponding values are the subsequent arguments, in the
- * same order as the list.
- *
- */
-Value *builtin_def(Env *env, Value *value) {
-  ASSERT_IS_LIST(value, 0, "def");
-
-  /* The first argument is a list of symbols */
-  Value *symbols = element_at(value, 0);
-
-  /* Ensure all the elements are indeed symbols */
-  for (int index = 0; index < count(symbols); index++) {
-    ASSERT_IS_SYMBOL(value, element_at(symbols, index), "def");
-  }
-
-  /* Ensure the number of symbols and values matches */
-  ASSERT(value, count(symbols) == count(value) - 1, BASE_FORMAT, "def",
-         "the same number of symbols and values.");
-
-  /* Assign copies of values to symbols. The operation might fail if the user
-  tries to redefine a Lye builtin. */
-  Value *maybe_error;
-  int index;
-  for (index = 0; index < count(symbols); index++) {
-    maybe_error = put_value(env, element_at(symbols, index),
-                            element_at(value, index + 1), 0);
-  }
-
-  return IS_ERROR(maybe_error) ? maybe_error : value->sexpr.cell[index];
-}
-
-/*
  * src/env.c:print_env
  * buildyourownlisp.com correspondence: none
  *

@@ -13,6 +13,7 @@
 #include <string.h>
 
 #include "calc.h"
+#include "function.h"
 #include "list.h"
 #include "value.h"
 

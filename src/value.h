@@ -23,6 +23,7 @@ typedef char *Symbol;
 typedef char *ErrorMsg;
 typedef struct Value Value;
 typedef struct Env Env;
+typedef struct Function Function;
 
 /* Enumerate possible Value types */
 typedef enum { NUMBER, SYMBOL, FUNCTION, SEXPR, QEXPR, ERROR } ValueType;
@@ -35,15 +36,6 @@ typedef struct Sexpr {
 
 /* Define the Builtin function pointer type */
 typedef Value *(*Builtin)(Env *, Value *);
-
-/* Define the Function struct */
-typedef struct Function {
-  Symbol name;
-  Builtin builtin; // NULL for user-defined functions
-  Env *env;
-  Value *params;
-  Value *body;
-} Function;
 
 /* Define the Value struct */
 typedef struct Value {
