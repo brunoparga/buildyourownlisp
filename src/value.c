@@ -46,9 +46,13 @@ Value *make_symbol(Symbol symbol) {
 Value *make_function(Symbol name, Builtin builtin) {
   Value *value = malloc(sizeof(Value));
   value->type = FUNCTION;
-  value->function.name = malloc(strlen(name) + 1);
-  strcpy(value->function.name, name);
-  value->function.builtin = builtin;
+
+  Function *function = malloc(sizeof(Function));
+  function->name = malloc(strlen(name) + 1);
+  strcpy(function->name, name);
+  function->builtin = builtin;
+
+  value->function = function;
   return value;
 }
 
@@ -61,14 +65,15 @@ Value *make_function(Symbol name, Builtin builtin) {
  */
 Value *make_lambda(Symbol name, Value *params, Value *body) {
   Value *value = malloc(sizeof(Value));
-  value->type = FUNCTION;
 
-  value->function.name = name;
-  value->function.builtin = NULL;
-  value->function.env = make_env();
-  value->function.params = params;
-  value->function.body = body;
+  Function *function = malloc(sizeof(Function));
+  function->name = name;
+  function->builtin = NULL;
+  function->env = make_env();
+  function->params = params;
+  function->body = body;
 
+  value->function = function;
   return value;
 }
 
@@ -164,13 +169,14 @@ void delete_value(Value *value) {
     break;
   /* For builtins we must free their name */
   case FUNCTION:
-    free(value->function.name);
-    if (!value->function.builtin) {
+    free(value->function->name);
+    if (!value->function->builtin) {
       /* We have other stuff to free for user-defined functions */
-      free(value->function.env);
-      free(value->function.params);
-      free(value->function.body);
+      free(value->function->env);
+      free(value->function->params);
+      free(value->function->body);
     }
+    free(value->function);
     break;
   /* For Symbol (and ErrorMsg, below), free the string data */
   case SYMBOL:
@@ -315,8 +321,8 @@ char *stringify(Value *value) {
     strcpy(result, value->symbol);
     break;
   case FUNCTION:
-    result = realloc(result, strlen(value->function.name) + 1);
-    strcpy(result, value->function.name);
+    result = realloc(result, strlen(value->function->name) + 1);
+    strcpy(result, value->function->name);
     break;
   case SEXPR:
     result = stringify_list(value, "(", ")");
@@ -485,17 +491,23 @@ Value *copy_value(Value *value) {
     copy->number = value->number;
     break;
   /* We copy the name and the pointer of the function */
-  case FUNCTION:
-    copy->function.name = malloc(strlen(value->function.name) + 1);
-    strcpy(copy->function.name, value->function.name);
-    if (value->function.builtin) {
-      copy->function.builtin = value->function.builtin;
+  case FUNCTION: {
+    Function *fun_copy = malloc(sizeof(Function));
+    fun_copy->name = malloc(strlen(value->function->name) + 1);
+    strcpy(fun_copy->name, value->function->name);
+
+    if (value->function->builtin) {
+      fun_copy->builtin = value->function->builtin;
     } else {
-      copy->function.env = copy_env(value->function.env);
-      copy->function.params = copy_value(value->function.params);
-      copy->function.body = copy_value(value->function.body);
+      fun_copy->builtin = NULL;
+      fun_copy->env = copy_env(value->function->env);
+      fun_copy->params = copy_value(value->function->params);
+      fun_copy->body = copy_value(value->function->body);
     }
+
+    copy->function = fun_copy;
     break;
+  }
   /* Copy strings using malloc and strcpy */
   case SYMBOL:
     copy->symbol = malloc(strlen(value->symbol) + 1);

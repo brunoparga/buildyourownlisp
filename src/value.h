@@ -53,7 +53,7 @@ typedef struct Value {
     Symbol symbol;
     ErrorMsg error;
     struct Sexpr sexpr;
-    struct Function function;
+    struct Function *function;
   };
 } Value;
 
