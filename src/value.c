@@ -1,5 +1,8 @@
 #include "value.h"
 
+// Included here and not in header file to avoid circular dependency
+#include "env.h"
+
 // ============================
 // Constructors and destructors
 // ============================
@@ -40,12 +43,32 @@ Value *make_symbol(Symbol symbol) {
  * Create a new function Value from the provided name and builtin.
  *
  */
-Value *make_function(Builtin builtin, Symbol name) {
+Value *make_function(Symbol name, Builtin builtin) {
   Value *value = malloc(sizeof(Value));
   value->type = FUNCTION;
   value->function.name = malloc(strlen(name) + 1);
   strcpy(value->function.name, name);
-  value->function.body = builtin;
+  value->function.builtin = builtin;
+  return value;
+}
+
+/*
+ * src/value.c:make_lambda
+ * buildyourownlisp.com correspondence: lval_lambda
+ *
+ * Create a new user-defined function Value.
+ *
+ */
+Value *make_lambda(Symbol name, Value *params, Value *body) {
+  Value *value = malloc(sizeof(Value));
+  value->type = FUNCTION;
+
+  value->function.name = name;
+  value->function.builtin = NULL;
+  value->function.env = make_env();
+  value->function.params = params;
+  value->function.body = body;
+
   return value;
 }
 
@@ -139,9 +162,15 @@ void delete_value(Value *value) {
   /* Do nothing special for numbers */
   case NUMBER:
     break;
-  /* For Functions we must free their name */
+  /* For builtins we must free their name */
   case FUNCTION:
     free(value->function.name);
+    if (!value->function.builtin) {
+      /* We have other stuff to free for user-defined functions */
+      free(value->function.env);
+      free(value->function.params);
+      free(value->function.body);
+    }
     break;
   /* For Symbol (and ErrorMsg, below), free the string data */
   case SYMBOL:

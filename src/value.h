@@ -39,7 +39,10 @@ typedef Value *(*Builtin)(Env *, Value *);
 /* Define the Function struct */
 typedef struct Function {
   Symbol name;
-  Builtin body;
+  Builtin builtin; // NULL for user-defined functions
+  Env *env;
+  Value *params;
+  Value *body;
 } Function;
 
 /* Define the Value struct */
@@ -65,7 +68,7 @@ typedef struct Value {
 /* Value constructors and destructor */
 Value *make_number(double number);
 Value *make_symbol(Symbol symbol);
-Value *make_function(Builtin function, Symbol name);
+Value *make_function(Symbol name, Builtin function);
 Value *make_sexpr(void);
 Value *make_qexpr(void);
 Value *make_error(char *format, ...);

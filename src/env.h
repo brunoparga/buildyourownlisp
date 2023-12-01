@@ -24,14 +24,16 @@
  *
  */
 typedef struct Env {
+  Env *parent;
   int count;
   Symbol *keys;
   Value **values;
   int *is_builtin;
 } Env;
 
-/* Environment constructor and destructor */
+/* Environment constructors and destructor */
 Env *make_env();
+Env *copy_env(Env const *old);
 void delete_env(Env *env);
 
 /* Store and retrieve */

@@ -1,6 +1,50 @@
 #include "eval.h"
 
 /*
+ * src/eval.c:call
+ * buildyourownlisp.com correspondence: lval_call
+ *
+ * Call a function, whether builtin or user-defined.
+ */
+Value *call(Env *env, Value *fun, Value *args) {
+  /* If the function is a builtin we simply call that */
+  if (fun->function.builtin) {
+    return fun->function.builtin(env, args);
+  }
+
+  int argc = count(args);
+  int paramc = count(fun->function.params);
+
+  /* Check if the function was given too many parameters */
+  if (argc > paramc) {
+    Value *error = make_error(
+        "function %s passed too many arguments: expected %d but got %d.",
+        fun->function.name, paramc, argc);
+    delete_value(fun);
+    delete_value(args);
+    return error;
+  }
+
+  /* Assign arguments to parameters */
+  for (int index; index < argc; index++) {
+    put_value(fun->function.env, fun->function.params->sexpr.cell[index],
+              args->sexpr.cell[index], 0);
+  }
+  delete_value(args);
+
+  if (argc == paramc) {
+    /* Evaluate a fully applied function */
+    fun->function.env = env;
+    return builtin_eval(
+        fun->function.env,
+        append_value(make_sexpr(), copy_value(fun->function.body)));
+  } else {
+    /* Return a partially applied function */
+    return copy_value(fun);
+  }
+}
+
+/*
  * src/eval.c:evaluate_sexpr
  * buildyourownlisp.com correspondence: lval_eval_sexpr
  *
@@ -23,7 +67,8 @@ static Value *evaluate_sexpr(Env *env, Value *value) {
 
   /* Singleton expression */
   Value *first = pop(value);
-  if (count(value) == 0 && (!IS_FUNCTION(first) || strcmp(first->function.name, "print-env") != 0)) {
+  if (count(value) == 0 &&
+      (!IS_FUNCTION(first) || strcmp(first->function.name, "print-env") != 0)) {
     delete_value(value);
     return first;
   }
@@ -39,7 +84,7 @@ static Value *evaluate_sexpr(Env *env, Value *value) {
   }
 
   /* Call function */
-  value = first->function.body(env, value);
+  value = call(env, first, value);
   delete_value(first);
   return value;
 }

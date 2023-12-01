@@ -7,9 +7,9 @@ char builtin_names[BUILTINS_COUNT][10] = {
     "cons", "length",    "reverse", "init", "+",    "-",    "*",
     "/",    "^",         "%",       "min",  "max"};
 
-// ==========================
-// Constructor and destructor
-// ==========================
+// ===========================
+// Constructors and destructor
+// ===========================
 
 /*
  * src/env.c:make_env
@@ -20,11 +20,37 @@ char builtin_names[BUILTINS_COUNT][10] = {
  */
 Env *make_env() {
   Env *env = malloc(sizeof(Env));
+  env->parent = NULL;
   env->count = 0;
   env->keys = NULL;
   env->values = NULL;
   env->is_builtin = NULL;
   return env;
+}
+
+/*
+ * src/env.c:copy_env
+ * buildyourownlisp.com correspondence: lenv_copy
+ *
+ * Copy an existing Environment. Useful when copying Values that have Envs as
+ * properties.
+ *
+ */
+Env *copy_env(Env const *old) {
+  Env *new = malloc(sizeof(Env));
+
+  new->parent = old->parent;
+  new->count = old->count;
+  new->keys = malloc(sizeof(Symbol) * new->count);
+  new->values = malloc(sizeof(Value *) * new->count);
+
+  for (int index = 0; index < old->count; index++) {
+    new->keys[index] = malloc(strlen(old->keys[index]) + 1);
+    strcpy(new->keys[index], old->keys[index]);
+    new->values[index] = copy_value(old->values[index]);
+  }
+
+  return new;
 }
 
 /*
@@ -206,7 +232,7 @@ Value *builtin_print_env(Env *env, Value *value) {
  */
 static void register_builtin(Env *env, Symbol name, Builtin builtin) {
   Value *key = make_symbol(name);
-  Value *function = make_function(builtin, name);
+  Value *function = make_function(name, builtin);
   put_value(env, key, function, 1);
   delete_value(key);
   delete_value(function);
