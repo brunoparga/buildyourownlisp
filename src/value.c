@@ -488,7 +488,13 @@ Value *copy_value(Value *value) {
   case FUNCTION:
     copy->function.name = malloc(strlen(value->function.name) + 1);
     strcpy(copy->function.name, value->function.name);
-    copy->function.body = value->function.body;
+    if (value->function.builtin) {
+      copy->function.builtin = value->function.builtin;
+    } else {
+      copy->function.env = copy_env(value->function.env);
+      copy->function.params = copy_value(value->function.params);
+      copy->function.body = copy_value(value->function.body);
+    }
     break;
   /* Copy strings using malloc and strcpy */
   case SYMBOL:
