@@ -69,6 +69,7 @@ Value *make_lambda(Value *params, Value *body) {
   value->type = FUNCTION;
 
   Function *function = malloc(sizeof(Function));
+  function->name = NULL;
   function->builtin = NULL;
   function->env = make_env();
   function->params = params;
@@ -214,7 +215,7 @@ void delete_value(Value *value) {
  * integer for use within the interpreter.
  *
  */
-int count(Value *sexpr_value) {
+inline int count(Value *sexpr_value) {
   switch (sexpr_value->type) {
   case QEXPR:
   case SEXPR:
@@ -328,9 +329,9 @@ char *stringify(Value *value) {
     } else {
       char *params_string = stringify(value->function->params);
       char *body_string = stringify(value->function->body);
-      result = realloc(result, strlen("(fn )") + strlen(params_string) + 1 +
+      result = realloc(result, strlen("(\\ )") + strlen(params_string) + 1 +
                                    strlen(body_string) + 1);
-      sprintf(result, "(fn %s %s)", params_string, body_string);
+      sprintf(result, "(\\ %s %s)", params_string, body_string);
       free(params_string);
       free(body_string);
     }
@@ -509,7 +510,12 @@ Value *copy_value(Value *value) {
       fun_copy->name = malloc(strlen(value->function->name) + 1);
       strcpy(fun_copy->name, value->function->name);
       fun_copy->builtin = value->function->builtin;
+      fun_copy->env = NULL;
+      fun_copy->params = NULL;
+      fun_copy->body = NULL;
     } else {
+      fun_copy->name = NULL;
+      fun_copy->builtin = NULL;
       fun_copy->env = copy_env(value->function->env);
       fun_copy->params = copy_value(value->function->params);
       fun_copy->body = copy_value(value->function->body);

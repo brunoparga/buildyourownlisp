@@ -39,7 +39,8 @@ void delete_env(Env *env);
 
 /* Store and retrieve */
 Value *get_value(Env *env, Value *key);
-Value *put_value(Env *env, Value *key, Value *value, int is_builtin);
+Value *put_local_value(Env *env, Value *key, Value *value, int is_builtin);
+Value *put_global_value(Env *env, Value *key, Value *value, int is_builtin);
 
 /* Register language built-ins */
 void register_builtins(Env *env);

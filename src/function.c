@@ -28,9 +28,10 @@ Value *call(Env *env, Value *fun, Value *args) {
   }
 
   /* Assign arguments to parameters */
-  for (int index; index < argc; index++) {
-    put_value(fun->function->env, fun->function->params->sexpr.cell[index],
-              args->sexpr.cell[index], 0);
+  for (int index = 0; index < argc; index++) {
+    put_local_value(fun->function->env,
+                    fun->function->params->sexpr.cell[index],
+                    args->sexpr.cell[index], 0);
   }
   delete_value(args);
 
@@ -40,33 +41,31 @@ Value *call(Env *env, Value *fun, Value *args) {
     return builtin_eval(
         fun->function->env,
         append_value(make_sexpr(), copy_value(fun->function->body)));
-  } else {
-    /* Return a partially applied function */
-    return copy_value(fun);
   }
+
+  /* Return a partially applied function */
+  return copy_value(fun);
 }
 
 /*
- * src/function.c:builtin_def
- * buildyourownlisp.com correspondence: builtin_def
+ * src/function.c:builtin_var
+ * buildyourownlisp.com correspondence: builtin_var
  *
- * Syntax: (def {list of length n} a b c ... n)
- * Put values in the environment. The elements of the first argument list are
- * keys, and their corresponding values are the subsequent arguments, in the
- * same order as the list.
+ * Put values in the corresponding Environment: local if `fun` is "=", global
+ * if "def".
  *
  */
-Value *builtin_def(Env *env, Value *value) {
-  ASSERT_IS_LIST(value, 0, "def");
+static Value *builtin_var(Env *env, Value *value, char *fun) {
+  ASSERT_IS_LIST(value, 0, fun);
 
   /* The first argument is a list of symbols */
   Value *symbols = element_at(value, 0);
 
   /* Ensure all the elements are indeed symbols */
-  ASSERT_ALL_SYMBOLS(symbols, "def");
+  ASSERT_ALL_SYMBOLS(symbols, fun);
 
   /* Ensure the number of symbols and values matches */
-  ASSERT(value, count(symbols) == count(value) - 1, BASE_FORMAT, "def",
+  ASSERT(value, count(symbols) == count(value) - 1, BASE_FORMAT, fun,
          "the same number of symbols and values.");
 
   /* Assign copies of values to symbols. The operation might fail if the user
@@ -74,11 +73,27 @@ Value *builtin_def(Env *env, Value *value) {
   Value *maybe_error;
   int index;
   for (index = 0; index < count(symbols); index++) {
+    Value *(*put_value)(Env *, Value *, Value *, int) =
+        strcmp(fun, "def") == 0 ? put_global_value : put_local_value;
     maybe_error = put_value(env, element_at(symbols, index),
                             element_at(value, index + 1), 0);
   }
 
   return IS_ERROR(maybe_error) ? maybe_error : value->sexpr.cell[index];
+}
+
+/*
+ * src/function.c:builtin_def
+ * buildyourownlisp.com correspondence: builtin_def
+ *
+ * Syntax: (def {list of length n} a b c ... n)
+ * Put values in the global environment. The elements of the first argument list
+ * are keys, and their corresponding values are the subsequent arguments, in the
+ * same order as the list.
+ *
+ */
+Value *builtin_def(Env *env, Value *value) {
+  return builtin_var(env, value, "def");
 }
 
 /*

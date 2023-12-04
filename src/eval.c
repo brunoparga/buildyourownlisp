@@ -1,5 +1,13 @@
 #include "eval.h"
 
+// We need to treat `print-env` different from other singleton values
+static inline int is_singleton(Value *value, Value *first) {
+  return count(value) == 0 &&
+         (!IS_FUNCTION(first) ||
+          (first->function->builtin &&
+           strcmp(first->function->name, "print-env") != 0));
+}
+
 /*
  * src/eval.c:evaluate_sexpr
  * buildyourownlisp.com correspondence: lval_eval_sexpr
@@ -8,6 +16,11 @@
  *
  */
 static Value *evaluate_sexpr(Env *env, Value *value) {
+  /* Empty expression, () */
+  if (count(value) == 0) {
+    return value;
+  }
+
   /* Evaluate children */
   for (int index = 0; index < count(value); index++) {
     value->sexpr.cell[index] = evaluate(env, element_at(value, index));
@@ -16,15 +29,9 @@ static Value *evaluate_sexpr(Env *env, Value *value) {
     }
   }
 
-  /* Empty expression, () */
-  if (count(value) == 0) {
-    return value;
-  }
-
   /* Singleton expression */
   Value *first = pop(value);
-  if (count(value) == 0 && (!IS_FUNCTION(first) ||
-                            strcmp(first->function->name, "print-env") != 0)) {
+  if (is_singleton(value, first)) {
     delete_value(value);
     return first;
   }

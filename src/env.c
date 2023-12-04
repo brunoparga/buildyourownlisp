@@ -43,6 +43,7 @@ Env *copy_env(Env const *old) {
   new->count = old->count;
   new->keys = malloc(sizeof(Symbol) * new->count);
   new->values = malloc(sizeof(Value *) * new->count);
+  new->is_builtin = malloc(sizeof(int) * new->count);
 
   for (int index = 0; index < old->count; index++) {
     new->keys[index] = malloc(strlen(old->keys[index]) + 1);
@@ -97,18 +98,24 @@ Value *get_value(Env *env, Value *key) {
     }
   }
 
-  /* If no matching key found, return an error */
+  /* Check the parent environment. If no matching key is found all the way up
+   * to the root environment, return an error */
+  if (env->parent) {
+    return get_value(env->parent, key);
+  }
+
   return make_error("unbound symbol '%s'.", key->symbol);
 }
 
 /*
- * src/env.c:put_value
+ * src/env.c:put_local_value
  * buildyourownlisp.com correspondence: lenv_put
  *
- * Insert a value into the corresponding key, updating it if already there.
+ * Insert a value into the given Environment at the corresponding key, updating
+ * it if already there.
  *
  */
-Value *put_value(Env *env, Value *key, Value *value, int is_builtin) {
+Value *put_local_value(Env *env, Value *key, Value *value, int is_builtin) {
   // Must be called with a Symbol key, or everything crashes
   if (!IS_SYMBOL(key)) {
     exit(EX_SOFTWARE);
@@ -147,6 +154,21 @@ Value *put_value(Env *env, Value *key, Value *value, int is_builtin) {
 
   /* Return the inserted Value */
   return value_copy;
+}
+
+/*
+ * src/env.c:put_global_value
+ * buildyourownlisp.com correspondence: lenv_def
+ *
+ * Insert a value intothe global environment at the corresponding key, updating
+ * it if already there.
+ *
+ */
+Value *put_global_value(Env *env, Value *key, Value *value, int is_builtin) {
+  while (env->parent) {
+    env = env->parent;
+  }
+  return put_local_value(env, key, value, is_builtin);
 }
 
 // =================================
@@ -196,7 +218,7 @@ Value *builtin_print_env(Env *env, Value *value) {
 static void register_builtin(Env *env, Symbol name, Builtin builtin) {
   Value *key = make_symbol(name);
   Value *function = make_builtin(name, builtin);
-  put_value(env, key, function, 1);
+  put_global_value(env, key, function, 1);
   delete_value(key);
   delete_value(function);
 }
@@ -227,6 +249,6 @@ void register_builtins(Env *env) {
 
   /* `quit` is a fake builtin */
   Value *quit = make_symbol("quit");
-  put_value(env, quit, quit, 1);
+  put_global_value(env, quit, quit, 1);
   delete_value(quit);
 }

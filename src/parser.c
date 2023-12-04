@@ -36,6 +36,16 @@ static Value *read_number(mpc_ast_t *ast) {
                          : make_number(number);
 }
 
+// Check if the parser should skip the current AST (e.g. parentheses)
+static inline int skip(mpc_ast_t *ast, int index) {
+  return strcmp(ast->children[index]->tag, "regex") == 0 ||
+         strcmp(ast->children[index]->tag, "comment|>") == 0 ||
+         strcmp(ast->children[index]->contents, "(") == 0 ||
+         strcmp(ast->children[index]->contents, ")") == 0 ||
+         strcmp(ast->children[index]->contents, "{") == 0 ||
+         strcmp(ast->children[index]->contents, "}") == 0;
+}
+
 /*
  * src/parser.c:expressionize
  * buildyourownlisp.com correspondence: lval_read
@@ -54,24 +64,17 @@ static Value *expressionize(mpc_ast_t *ast) {
     return make_symbol(ast->contents);
   }
 
-  /* If root (">") or sexpr then create empty list */
+  /* If root (">"), sexpr or qexpr then create empty list */
   Value *value = NULL;
   if (strcmp(ast->tag, ">") == 0 || HAS_TAG("sexpr")) {
     value = make_sexpr();
-  }
-
-  if (HAS_TAG("qexpr")) {
+  } else if (HAS_TAG("qexpr")) {
     value = make_qexpr();
   }
 
-  /* Fill the list with any valid expression contained within */
+  /* Fill the list with any valid expressions contained within */
   for (int index = 0; index < ast->children_num; index++) {
-    if (strcmp(ast->children[index]->tag, "regex") == 0 ||
-        strcmp(ast->children[index]->tag, "comment|>") == 0 ||
-        strcmp(ast->children[index]->contents, "(") == 0 ||
-        strcmp(ast->children[index]->contents, ")") == 0 ||
-        strcmp(ast->children[index]->contents, "{") == 0 ||
-        strcmp(ast->children[index]->contents, "}") == 0) {
+    if (skip(ast, index)) {
       continue;
     }
     value = append_value(value, expressionize(ast->children[index]));
