@@ -31,23 +31,33 @@ char *read_file(const char *path) {
     return NULL;
   }
 
-  fseek(file, 0L, SEEK_END);
-  size_t fileSize = ftell(file);
-  rewind(file);
+  int seeking_failed = fseek(file, 0L, SEEK_END);
+  if (seeking_failed) {
+    fprintf(stderr, "Could not traverse file \"%s\".\n", path);
+    return NULL;
+  }
 
-  char *buffer = (char *)malloc(fileSize + 1);
+  long size_try = ftell(file);
+  if (size_try == -1L) {
+    fprintf(stderr, "Could not determine size of file \"%s\".\n", path);
+    return NULL;
+  }
+  rewind(file);
+  size_t file_size = (size_t)size_try;
+
+  char *buffer = malloc(file_size + 1);
   if (buffer == NULL) {
     fprintf(stderr, "Not enough memory to read \"%s\".\n", path);
     return NULL;
   }
 
-  size_t bytesRead = fread(buffer, sizeof(char), fileSize, file);
-  if (bytesRead < fileSize) {
+  size_t bytes_read = fread(buffer, sizeof(char), file_size, file);
+  if (bytes_read < file_size) {
     fprintf(stderr, "Could not read file \"%s\".\n", path);
     return NULL;
   }
 
-  buffer[bytesRead] = '\0';
+  buffer[bytes_read] = '\0';
 
   fclose(file);
   return buffer;

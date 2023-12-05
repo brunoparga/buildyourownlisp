@@ -37,7 +37,7 @@ static Value *read_number(mpc_ast_t *ast) {
 }
 
 // Check if the parser should skip the current AST (e.g. parentheses)
-static inline int skip(mpc_ast_t *ast, int index) {
+static inline bool skip(mpc_ast_t *ast, size_t index) {
   return strcmp(ast->children[index]->tag, "regex") == 0 ||
          strcmp(ast->children[index]->tag, "comment|>") == 0 ||
          strcmp(ast->children[index]->contents, "(") == 0 ||
@@ -73,7 +73,7 @@ static Value *expressionize(mpc_ast_t *ast) {
   }
 
   /* Fill the list with any valid expressions contained within */
-  for (int index = 0; index < ast->children_num; index++) {
+  for (size_t index = 0; index < (size_t)ast->children_num; index++) {
     if (skip(ast, index)) {
       continue;
     }

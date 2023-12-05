@@ -11,7 +11,7 @@
 #include "value.h"
 
 /* Define the Function struct */
-typedef struct Function {
+struct Function {
   /* These two are only by builtins */
   Symbol name;
   Builtin builtin;
@@ -19,7 +19,7 @@ typedef struct Function {
   Env *env;
   Value *params;
   Value *body;
-} Function;
+};
 
 Value *call(Env *env, Value *fun, Value *args);
 Value *builtin_def(Env *env, Value *value);

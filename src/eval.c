@@ -1,11 +1,11 @@
 #include "eval.h"
 
 // We need to treat `print-env` different from other singleton values
-static inline int is_singleton(Value *value, Value *first) {
+static inline bool is_singleton(Value *value, Value *first) {
   return count(value) == 0 &&
          (!IS_FUNCTION(first) ||
-          (first->function->builtin &&
-           strcmp(first->function->name, "print-env") != 0));
+          (first->data.function->builtin &&
+           strcmp(first->data.function->name, "print-env") != 0));
 }
 
 /*
@@ -22,8 +22,8 @@ static Value *evaluate_sexpr(Env *env, Value *value) {
   }
 
   /* Evaluate children */
-  for (int index = 0; index < count(value); index++) {
-    value->sexpr.cell[index] = evaluate(env, element_at(value, index));
+  for (size_t index = 0; index < count(value); index++) {
+    value->data.sexpr.cell[index] = evaluate(env, element_at(value, index));
     if (IS_ERROR(element_at(value, index))) {
       return take_value(value, index);
     }

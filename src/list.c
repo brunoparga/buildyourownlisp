@@ -36,7 +36,7 @@ Value *builtin_head(__attribute__((unused)) Env *env, Value *value) {
   value = take_value(value, 0);
 
   /* Delete all elements that are not head and return */
-  while (value->sexpr.count > 1) {
+  while (value->data.sexpr.count > 1) {
     delete_value(pop_value(value, 1));
   }
 
@@ -77,7 +77,7 @@ Value *builtin_tail(__attribute__((unused)) Env *env, Value *value) {
  *
  */
 Value *builtin_join(__attribute__((unused)) Env *env, Value *value) {
-  for (int index = 0; index < count(value); index++) {
+  for (size_t index = 0; index < count(value); index++) {
     ASSERT_IS_LIST(value, index, "join");
   }
 
@@ -87,9 +87,9 @@ Value *builtin_join(__attribute__((unused)) Env *env, Value *value) {
   // As long as there are other lists
   while (count(value) > 0) {
     // and elements in the first list
-    while (count(value->sexpr.cell[0]) > 0) {
+    while (count(value->data.sexpr.cell[0]) > 0) {
       // append the first element of the first list to the result
-      Value *next = pop(value->sexpr.cell[0]);
+      Value *next = pop(value->data.sexpr.cell[0]);
       result = append_value(result, next);
     }
     // We pop from the S-expr the Q-expr being appended, which is now empty
@@ -132,18 +132,19 @@ Value *builtin_cons(__attribute__((unused)) Env *env, Value *value) {
   delete_value(value);
 
   /* Set new size of Q-expr */
-  list->sexpr.count++;
+  list->data.sexpr.count++;
 
   /* Allocate larger memory */
-  list->sexpr.cell = realloc(list->sexpr.cell, sizeof(Value *) * count(list));
+  list->data.sexpr.cell =
+      realloc(list->data.sexpr.cell, sizeof(Value *) * count(list));
 
   /* Shift the list one element to the right */
-  for (int index = count(list) - 1; index > 0; index--) {
-    list->sexpr.cell[index] = list->sexpr.cell[index - 1];
+  for (size_t index = count(list) - 1; index > 0; index--) {
+    list->data.sexpr.cell[index] = list->data.sexpr.cell[index - 1];
   }
 
   /* Set the correct pointers */
-  list->sexpr.cell[0] = new_element;
+  list->data.sexpr.cell[0] = new_element;
 
   return list;
 }
@@ -160,7 +161,7 @@ Value *builtin_length(__attribute__((unused)) Env *env, Value *value) {
   ASSERT_IS_LIST(value, 0, "length");
 
   /* What we want is the Q-expr contained within this S-expr */
-  Value *list = value->sexpr.cell[0];
+  Value *list = value->data.sexpr.cell[0];
   Value *result = make_number((double)count(list));
   delete_value(value);
   return result;
@@ -178,12 +179,12 @@ Value *builtin_reverse(__attribute__((unused)) Env *env, Value *value) {
   ASSERT_IS_LIST(value, 0, "reverse");
 
   Value *list = copy_value(element_at(value, 0));
-  int length = count(list);
+  size_t length = count(list);
 
-  for (int index = 0; index < length / 2; index++) {
-    Value *tmp = list->sexpr.cell[index];
-    list->sexpr.cell[index] = list->sexpr.cell[length - index - 1];
-    list->sexpr.cell[length - index - 1] = tmp;
+  for (size_t index = 0; index < length / 2; index++) {
+    Value *tmp = list->data.sexpr.cell[index];
+    list->data.sexpr.cell[index] = list->data.sexpr.cell[length - index - 1];
+    list->data.sexpr.cell[length - index - 1] = tmp;
   }
 
   delete_value(value);

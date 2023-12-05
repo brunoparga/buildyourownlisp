@@ -11,6 +11,7 @@
 
 #include <math.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,7 +31,7 @@ typedef enum { NUMBER, SYMBOL, FUNCTION, SEXPR, QEXPR, ERROR } ValueType;
 
 /* Declare the S-expression struct */
 typedef struct Sexpr {
-  int count;
+  size_t count;
   struct Value **cell;
 } Sexpr;
 
@@ -38,7 +39,7 @@ typedef struct Sexpr {
 typedef Value *(*Builtin)(Env *, Value *);
 
 /* Define the Value struct */
-typedef struct Value {
+struct Value {
   ValueType type;
   union {
     double number;
@@ -46,8 +47,8 @@ typedef struct Value {
     ErrorMsg error;
     struct Sexpr sexpr;
     struct Function *function;
-  };
-} Value;
+  } data;
+};
 
 /* Macros that assert the type of a Value */
 #define IS_NUMBER(value) (value->type == NUMBER)
@@ -69,14 +70,14 @@ Value *va_list_make_error(char *format, va_list pieces);
 void delete_value(Value *value);
 
 /* Utility functions for working with Values */
-int count(Value *sexpr_value);
-Value *element_at(Value *sexpr_value, int index);
+size_t count(Value *sexpr_value);
+Value *element_at(Value *sexpr_value, size_t index);
 char *get_type(Value *value);
 char *stringify(Value *value);
 void println_value(Value *value);
-Value *pop_value(Value *value, int index);
+Value *pop_value(Value *value, size_t index);
 Value *pop(Value *value);
-Value *take_value(Value *value, int index);
+Value *take_value(Value *value, size_t index);
 Value *append_value(Value *list, Value *new_value);
 Value *join_values(Value *left, Value *right);
 Value *copy_value(Value *value);

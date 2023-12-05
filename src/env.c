@@ -1,5 +1,4 @@
 #include "env.h"
-#include "value.h"
 
 #define BUILTINS_COUNT 20
 char builtin_names[BUILTINS_COUNT][10] = {
@@ -43,9 +42,9 @@ Env *copy_env(Env const *old) {
   new->count = old->count;
   new->keys = malloc(sizeof(Symbol) * new->count);
   new->values = malloc(sizeof(Value *) * new->count);
-  new->is_builtin = malloc(sizeof(int) * new->count);
+  new->is_builtin = malloc(sizeof(bool) * new->count);
 
-  for (int index = 0; index < old->count; index++) {
+  for (size_t index = 0; index < old->count; index++) {
     new->keys[index] = malloc(strlen(old->keys[index]) + 1);
     strcpy(new->keys[index], old->keys[index]);
     new->values[index] = copy_value(old->values[index]);
@@ -62,7 +61,7 @@ Env *copy_env(Env const *old) {
  *
  */
 void delete_env(Env *env) {
-  for (int index = 0; index < env->count; index++) {
+  for (size_t index = 0; index < env->count; index++) {
     free(env->keys[index]);
     delete_value(env->values[index]);
   }
@@ -90,9 +89,9 @@ Value *get_value(Env *env, Value *key) {
   }
 
   /* Iterate over all items in the environment */
-  for (int index = 0; index < env->count; index++) {
+  for (size_t index = 0; index < env->count; index++) {
     /* Check if the stored string matches the symbol string */
-    if (strcmp(env->keys[index], key->symbol) == 0) {
+    if (strcmp(env->keys[index], key->data.symbol) == 0) {
       /* If it does, return a copy of the value */
       return copy_value(env->values[index]);
     }
@@ -104,7 +103,7 @@ Value *get_value(Env *env, Value *key) {
     return get_value(env->parent, key);
   }
 
-  return make_error("unbound symbol '%s'.", key->symbol);
+  return make_error("unbound symbol '%s'.", key->data.symbol);
 }
 
 /*
@@ -115,7 +114,7 @@ Value *get_value(Env *env, Value *key) {
  * it if already there.
  *
  */
-Value *put_local_value(Env *env, Value *key, Value *value, int is_builtin) {
+Value *put_local_value(Env *env, Value *key, Value *value, bool is_builtin) {
   // Must be called with a Symbol key, or everything crashes
   if (!IS_SYMBOL(key)) {
     exit(EX_SOFTWARE);
@@ -123,14 +122,15 @@ Value *put_local_value(Env *env, Value *key, Value *value, int is_builtin) {
 
   Value *value_copy = copy_value(value);
 
-  for (int index = 0; index < env->count; index++) {
+  for (size_t index = 0; index < env->count; index++) {
     /* First, check if the key is already present */
-    if (strcmp(env->keys[index], key->symbol) == 0) {
+    if (strcmp(env->keys[index], key->data.symbol) == 0) {
       /* If it is... */
-      if (env->is_builtin[index] || strcmp(key->symbol, "quit") == 0) {
+      if (env->is_builtin[index] || strcmp(key->data.symbol, "quit") == 0) {
         /* And it is not a builtin... */
         delete_value(value);
-        return make_error("cannot redefine builtin function %s.", key->symbol);
+        return make_error("cannot redefine builtin function %s.",
+                          key->data.symbol);
       } else {
         /* Substitute the provided one */
         env->values[index] = value_copy;
@@ -144,11 +144,11 @@ Value *put_local_value(Env *env, Value *key, Value *value, int is_builtin) {
   env->count++;
   env->keys = realloc(env->keys, sizeof(Symbol) * env->count);
   env->values = realloc(env->values, sizeof(Value *) * env->count);
-  env->is_builtin = realloc(env->is_builtin, sizeof(Value *) * env->count);
+  env->is_builtin = realloc(env->is_builtin, sizeof(bool) * env->count);
 
   /* Insert the new key and value */
-  env->keys[env->count - 1] = malloc(strlen(key->symbol) + 1);
-  strcpy(env->keys[env->count - 1], key->symbol);
+  env->keys[env->count - 1] = malloc(strlen(key->data.symbol) + 1);
+  strcpy(env->keys[env->count - 1], key->data.symbol);
   env->values[env->count - 1] = value_copy;
   env->is_builtin[env->count - 1] = is_builtin;
 
@@ -164,7 +164,7 @@ Value *put_local_value(Env *env, Value *key, Value *value, int is_builtin) {
  * it if already there.
  *
  */
-Value *put_global_value(Env *env, Value *key, Value *value, int is_builtin) {
+Value *put_global_value(Env *env, Value *key, Value *value, bool is_builtin) {
   while (env->parent) {
     env = env->parent;
   }
@@ -184,11 +184,11 @@ Value *put_global_value(Env *env, Value *key, Value *value, int is_builtin) {
  */
 static void print_env(Env *env) {
   printf("Current environment:\n");
-  for (int index = 0; index < env->count; index++) {
+  for (size_t index = 0; index < env->count; index++) {
     printf("    %s: ", env->keys[index]);
     println_value(env->values[index]);
   }
-  printf("There are a total of %d variables defined.\n", env->count);
+  printf("There are a total of %zu variables defined.\n", env->count);
 }
 
 /*
@@ -218,7 +218,7 @@ Value *builtin_print_env(Env *env, Value *value) {
 static void register_builtin(Env *env, Symbol name, Builtin builtin) {
   Value *key = make_symbol(name);
   Value *function = make_builtin(name, builtin);
-  put_global_value(env, key, function, 1);
+  put_global_value(env, key, function, true);
   delete_value(key);
   delete_value(function);
 }
@@ -243,12 +243,12 @@ void register_builtins(Env *env) {
       builtin_add, builtin_subtract, builtin_multiply, builtin_divide,
       builtin_exp, builtin_modulo, builtin_min, builtin_max};
 
-  for (int index = 0; index < BUILTINS_COUNT; index++) {
+  for (size_t index = 0; index < BUILTINS_COUNT; index++) {
     register_builtin(env, builtin_names[index], builtin_functions[index]);
   }
 
   /* `quit` is a fake builtin */
   Value *quit = make_symbol("quit");
-  put_global_value(env, quit, quit, 1);
+  put_global_value(env, quit, quit, true);
   delete_value(quit);
 }

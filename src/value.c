@@ -17,7 +17,7 @@
 Value *make_number(double number) {
   Value *value = malloc(sizeof(Value));
   value->type = NUMBER;
-  value->number = number;
+  value->data.number = number;
   return value;
 }
 
@@ -31,8 +31,8 @@ Value *make_number(double number) {
 Value *make_symbol(Symbol symbol) {
   Value *value = malloc(sizeof(Value));
   value->type = SYMBOL;
-  value->symbol = malloc(strlen(symbol) + 1);
-  strcpy(value->symbol, symbol);
+  value->data.symbol = malloc(strlen(symbol) + 1);
+  strcpy(value->data.symbol, symbol);
   return value;
 }
 
@@ -52,7 +52,7 @@ Value *make_builtin(Symbol name, Builtin builtin) {
   strcpy(function->name, name);
   function->builtin = builtin;
 
-  value->function = function;
+  value->data.function = function;
   return value;
 }
 
@@ -75,7 +75,7 @@ Value *make_lambda(Value *params, Value *body) {
   function->params = params;
   function->body = body;
 
-  value->function = function;
+  value->data.function = function;
   return value;
 }
 
@@ -89,8 +89,8 @@ Value *make_lambda(Value *params, Value *body) {
 Value *make_sexpr() {
   Value *value = malloc(sizeof(Value));
   value->type = SEXPR;
-  value->sexpr.count = 0;
-  value->sexpr.cell = NULL;
+  value->data.sexpr.count = 0;
+  value->data.sexpr.cell = NULL;
   return value;
 }
 
@@ -104,8 +104,8 @@ Value *make_sexpr() {
 Value *make_qexpr() {
   Value *value = malloc(sizeof(Value));
   value->type = QEXPR;
-  value->sexpr.count = 0;
-  value->sexpr.cell = NULL;
+  value->data.sexpr.count = 0;
+  value->data.sexpr.cell = NULL;
   return value;
 }
 
@@ -126,13 +126,13 @@ Value *make_error(char *format, ...) {
   va_start(pieces, format);
 
   /* Allocate 512 bytes of space */
-  value->error = malloc(512);
+  value->data.error = malloc(512);
 
   /* printf the error string with a maximum of 511 characters */
-  vsnprintf(value->error, 511, format, pieces);
+  vsnprintf(value->data.error, 511, format, pieces);
 
   /* Reallocate to the number of bytes actually used */
-  value->error = realloc(value->error, strlen(value->error) + 1);
+  value->data.error = realloc(value->data.error, strlen(value->data.error) + 1);
 
   /* Clean up our arg list */
   va_end(pieces);
@@ -171,30 +171,30 @@ void delete_value(Value *value) {
     break;
   /* What to free is different for builtins and user-defined functions */
   case FUNCTION:
-    if (value->function->builtin) {
-      free(value->function->name);
+    if (value->data.function->builtin) {
+      free(value->data.function->name);
     } else {
-      free(value->function->env);
-      free(value->function->params);
-      free(value->function->body);
+      free(value->data.function->env);
+      free(value->data.function->params);
+      free(value->data.function->body);
     }
-    free(value->function);
+    free(value->data.function);
     break;
   /* For Symbol (and ErrorMsg, below), free the string data */
   case SYMBOL:
-    free(value->symbol);
+    free(value->data.symbol);
     break;
   /* For Sexpr delete all the elements inside */
   case SEXPR:
   case QEXPR:
-    for (int index = 0; index < count(value); index++) {
+    for (size_t index = 0; index < count(value); index++) {
       delete_value(element_at(value, index));
     }
     /* Also free the memory allocated to contain the pointers */
-    free(value->sexpr.cell);
+    free(value->data.sexpr.cell);
     break;
   case ERROR:
-    free(value->error);
+    free(value->data.error);
     break;
   }
 
@@ -215,15 +215,15 @@ void delete_value(Value *value) {
  * integer for use within the interpreter.
  *
  */
-inline int count(Value *sexpr_value) {
+inline size_t count(Value *sexpr_value) {
   switch (sexpr_value->type) {
   case QEXPR:
   case SEXPR:
-    return sexpr_value->sexpr.count;
+    return sexpr_value->data.sexpr.count;
   default:
     printf(
         "Error: Value is not an S- or Q-expression and doesn't have a count.");
-    return -1;
+    return 0;
   }
 }
 
@@ -266,11 +266,11 @@ static char *stringify_number(Value *value, char *result) {
     exit(EX_SOFTWARE);
   }
 
-  double rounded = roundf(value->number);
-  if (rounded == value->number) {
+  double rounded = round(value->data.number);
+  if (rounded == value->data.number) {
     REALLOC_STRING("%li", (long)rounded, result);
   } else {
-    REALLOC_STRING("%g", value->number, result);
+    REALLOC_STRING("%g", value->data.number, result);
   }
 
   return result;
@@ -287,8 +287,8 @@ static char *stringify_list(Value *value, char *open, char *close) {
   char *result = malloc(strlen(open) + 1);
   strcpy(result, open);
 
-  int length = count(value);
-  for (int index = 0; index < length; index++) {
+  size_t length = count(value);
+  for (size_t index = 0; index < length; index++) {
     char *element_string = stringify(element_at(value, index));
     result = realloc(result, strlen(result) + strlen(element_string) + 1);
     strcat(result, element_string);
@@ -319,16 +319,16 @@ char *stringify(Value *value) {
     result = stringify_number(value, result);
     break;
   case SYMBOL:
-    result = realloc(result, strlen(value->symbol) + 1);
-    strcpy(result, value->symbol);
+    result = realloc(result, strlen(value->data.symbol) + 1);
+    strcpy(result, value->data.symbol);
     break;
   case FUNCTION:
-    if (value->function->builtin) {
-      result = realloc(result, strlen(value->function->name) + 1);
-      strcpy(result, value->function->name);
+    if (value->data.function->builtin) {
+      result = realloc(result, strlen(value->data.function->name) + 1);
+      strcpy(result, value->data.function->name);
     } else {
-      char *params_string = stringify(value->function->params);
-      char *body_string = stringify(value->function->body);
+      char *params_string = stringify(value->data.function->params);
+      char *body_string = stringify(value->data.function->body);
       result = realloc(result, strlen("(\\ )") + strlen(params_string) + 1 +
                                    strlen(body_string) + 1);
       sprintf(result, "(\\ %s %s)", params_string, body_string);
@@ -343,10 +343,10 @@ char *stringify(Value *value) {
     result = stringify_list(value, "{", "}");
     break;
   case ERROR:
-    result = realloc(result, strlen(value->error) + 8);
+    result = realloc(result, strlen(value->data.error) + 8);
     result[0] = '\0';
     strcpy(result, "Error: ");
-    strcat(result, value->error);
+    strcat(result, value->data.error);
     break;
   }
 
@@ -394,11 +394,11 @@ void println_value(Value *value) {
  * discards the list.)
  *
  */
-Value *element_at(Value *sexpr_value, int index) {
+Value *element_at(Value *sexpr_value, size_t index) {
   switch (sexpr_value->type) {
   case QEXPR:
   case SEXPR:
-    return sexpr_value->sexpr.cell[index];
+    return sexpr_value->data.sexpr.cell[index];
   default:
     return make_error(
         "cannot get element from a Value that is not an S- or Q-expression.");
@@ -414,20 +414,20 @@ Value *element_at(Value *sexpr_value, int index) {
  * the more conservative `element_at`, which maintains the element in place.
  *
  */
-Value *pop_value(Value *value, int index) {
+Value *pop_value(Value *value, size_t index) {
   /* Find the value to pop */
   Value *popped = element_at(value, index);
 
   /* Shift memory after the popped item over the top*/
-  memmove(&value->sexpr.cell[index], &value->sexpr.cell[index + 1],
+  memmove(&value->data.sexpr.cell[index], &value->data.sexpr.cell[index + 1],
           sizeof(Value *) * (count(value) - index - 1));
 
   /* Decrement the size of the list */
-  value->sexpr.count--;
+  value->data.sexpr.count--;
 
   /* Reallocate the memory used */
-  value->sexpr.cell =
-      realloc(value->sexpr.cell, sizeof(Value *) * count(value));
+  value->data.sexpr.cell =
+      realloc(value->data.sexpr.cell, sizeof(Value *) * count(value));
   return popped;
 }
 
@@ -442,7 +442,7 @@ inline Value *pop(Value *value) { return pop_value(value, 0); }
  * list. Compare with the less destructive `pop_value` and `element_at`.
  *
  */
-Value *take_value(Value *value, int index) {
+Value *take_value(Value *value, size_t index) {
   Value *popped = pop_value(value, index);
   delete_value(value);
   return popped;
@@ -458,10 +458,11 @@ Value *take_value(Value *value, int index) {
  *
  */
 Value *append_value(Value *list, Value *new_value) {
-  list->sexpr.count++;
-  list->sexpr.cell = realloc(list->sexpr.cell, sizeof(Value *) * count(list));
+  list->data.sexpr.count++;
+  list->data.sexpr.cell =
+      realloc(list->data.sexpr.cell, sizeof(Value *) * count(list));
 
-  list->sexpr.cell[count(list) - 1] = new_value;
+  list->data.sexpr.cell[count(list) - 1] = new_value;
   return list;
 }
 
@@ -500,46 +501,46 @@ Value *copy_value(Value *value) {
   switch (value->type) {
   /* Copy Functions and Numbers directly */
   case NUMBER:
-    copy->number = value->number;
+    copy->data.number = value->data.number;
     break;
   /* We copy the name and the pointer of the function */
   case FUNCTION: {
     Function *fun_copy = malloc(sizeof(Function));
 
-    if (value->function->builtin) {
-      fun_copy->name = malloc(strlen(value->function->name) + 1);
-      strcpy(fun_copy->name, value->function->name);
-      fun_copy->builtin = value->function->builtin;
+    if (value->data.function->builtin) {
+      fun_copy->name = malloc(strlen(value->data.function->name) + 1);
+      strcpy(fun_copy->name, value->data.function->name);
+      fun_copy->builtin = value->data.function->builtin;
       fun_copy->env = NULL;
       fun_copy->params = NULL;
       fun_copy->body = NULL;
     } else {
       fun_copy->name = NULL;
       fun_copy->builtin = NULL;
-      fun_copy->env = copy_env(value->function->env);
-      fun_copy->params = copy_value(value->function->params);
-      fun_copy->body = copy_value(value->function->body);
+      fun_copy->env = copy_env(value->data.function->env);
+      fun_copy->params = copy_value(value->data.function->params);
+      fun_copy->body = copy_value(value->data.function->body);
     }
 
-    copy->function = fun_copy;
+    copy->data.function = fun_copy;
     break;
   }
   /* Copy strings using malloc and strcpy */
   case SYMBOL:
-    copy->symbol = malloc(strlen(value->symbol) + 1);
-    strcpy(copy->symbol, value->symbol);
+    copy->data.symbol = malloc(strlen(value->data.symbol) + 1);
+    strcpy(copy->data.symbol, value->data.symbol);
     break;
   case ERROR:
-    copy->error = malloc(strlen(value->error) + 1);
-    strcpy(copy->error, value->error);
+    copy->data.error = malloc(strlen(value->data.error) + 1);
+    strcpy(copy->data.error, value->data.error);
     break;
   /* Copy lists by copying each sub-expression */
   case SEXPR:
   case QEXPR:
-    copy->sexpr.count = value->sexpr.count;
-    copy->sexpr.cell = malloc(sizeof(Value *) * value->sexpr.count);
-    for (int index = 0; index < copy->sexpr.count; index++) {
-      copy->sexpr.cell[index] = copy_value(value->sexpr.cell[index]);
+    copy->data.sexpr.count = value->data.sexpr.count;
+    copy->data.sexpr.cell = malloc(sizeof(Value *) * value->data.sexpr.count);
+    for (size_t index = 0; index < copy->data.sexpr.count; index++) {
+      copy->data.sexpr.cell[index] = copy_value(value->data.sexpr.cell[index]);
     }
     break;
   }

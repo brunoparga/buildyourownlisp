@@ -9,7 +9,7 @@
  * represented as floats in Lye.
  *
  */
-static int is_integer(double x) {
+static bool is_integer(double x) {
   double epsilon = 0.000001; // Enough for e^pi - pi != 20
   double difference = round(x) - x;
   return difference > -epsilon && difference < epsilon;
@@ -47,7 +47,7 @@ static Value *numeric_error(Value *x, Value *y, char *format, ...) {
  */
 static Value *calculate(Value *value, char *op) {
   /* Ensure all arguments are numbers */
-  for (int index = 0; index < count(value); index++) {
+  for (size_t index = 0; index < count(value); index++) {
     ASSERT_IS_NUMBER(value, index, op);
   }
 
@@ -58,7 +58,7 @@ static Value *calculate(Value *value, char *op) {
   /* Check for unary negation; the count is zero because the number
   has been popped a few lines above */
   if (IS_OP("-") && count(value) == 0) {
-    result->number = -result->number;
+    result->data.number = -result->data.number;
   }
 
   /* Since we're using Polish Notation, each operation can take any number of
@@ -69,33 +69,33 @@ static Value *calculate(Value *value, char *op) {
 
     /* Check which operation is being performed and execute it */
     if (IS_OP("+")) {
-      result->number += operand->number;
+      result->data.number += operand->data.number;
     } else if (IS_OP("-")) {
-      result->number -= operand->number;
+      result->data.number -= operand->data.number;
     } else if (IS_OP("*")) {
-      result->number *= operand->number;
+      result->data.number *= operand->data.number;
     } else if (IS_OP("/")) {
-      if (operand->number == 0) {
+      if (operand->data.number == 0) {
         result = numeric_error(result, operand, "cannot divide by zero.");
         break;
       }
-      result->number /= operand->number;
+      result->data.number /= operand->data.number;
     } else if (IS_OP("%")) {
       /* Since the modulo is the remainder of a division, its second operand
       cannot be zero */
-      if (operand->number == 0) {
+      if (operand->data.number == 0) {
         result = numeric_error(result, operand, "modulus cannot be zero.");
         break;
       }
-      if (is_integer(result->number) && is_integer(operand->number)) {
+      if (is_integer(result->data.number) && is_integer(operand->data.number)) {
         /* We perform the operation only on integers */
-        long int_result = (long)result->number;
-        long int_operand = (long)operand->number;
+        long int_result = (long)result->data.number;
+        long int_operand = (long)operand->data.number;
         int_result %= int_operand;
         if (int_result < 0) {
           int_result += int_operand;
         }
-        result->number = (double)int_result;
+        result->data.number = (double)int_result;
       } else {
         char *x = stringify(result);
         char *y = stringify(operand);
@@ -108,7 +108,7 @@ static Value *calculate(Value *value, char *op) {
       }
     } else if (IS_OP("^")) {
       /* No raising zero to a negative power */
-      if (result->number == 0 && operand->number < 0) {
+      if (result->data.number == 0 && operand->data.number < 0) {
         char *x = stringify(operand);
         result = numeric_error(
             result, operand,
@@ -116,11 +116,11 @@ static Value *calculate(Value *value, char *op) {
         free(x);
         break;
       }
-      result->number = pow(result->number, operand->number);
+      result->data.number = pow(result->data.number, operand->data.number);
     } else if (IS_OP("max")) {
-      result->number = fmax(result->number, operand->number);
+      result->data.number = fmax(result->data.number, operand->data.number);
     } else if (IS_OP("min")) {
-      result->number = fmin(result->number, operand->number);
+      result->data.number = fmin(result->data.number, operand->data.number);
     }
 
     delete_value(operand);

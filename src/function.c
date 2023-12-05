@@ -10,37 +10,37 @@
  */
 Value *call(Env *env, Value *fun, Value *args) {
   /* If the function is a builtin we simply call that */
-  if (fun->function->builtin) {
-    return fun->function->builtin(env, args);
+  if (fun->data.function->builtin) {
+    return fun->data.function->builtin(env, args);
   }
 
-  int argc = count(args);
-  int paramc = count(fun->function->params);
+  size_t argc = count(args);
+  size_t paramc = count(fun->data.function->params);
 
   /* Check if the function was given too many parameters */
   if (argc > paramc) {
     Value *error = make_error(
         "function %s passed too many arguments: expected %d but got %d.",
-        fun->function->name, paramc, argc);
+        fun->data.function->name, paramc, argc);
     delete_value(fun);
     delete_value(args);
     return error;
   }
 
   /* Assign arguments to parameters */
-  for (int index = 0; index < argc; index++) {
-    put_local_value(fun->function->env,
-                    fun->function->params->sexpr.cell[index],
-                    args->sexpr.cell[index], 0);
+  for (size_t index = 0; index < argc; index++) {
+    put_local_value(fun->data.function->env,
+                    fun->data.function->params->data.sexpr.cell[index],
+                    args->data.sexpr.cell[index], false);
   }
   delete_value(args);
 
   if (argc == paramc) {
     /* Evaluate a fully applied function */
-    fun->function->env->parent = env;
+    fun->data.function->env->parent = env;
     return builtin_eval(
-        fun->function->env,
-        append_value(make_sexpr(), copy_value(fun->function->body)));
+        fun->data.function->env,
+        append_value(make_sexpr(), copy_value(fun->data.function->body)));
   }
 
   /* Return a partially applied function */
@@ -71,15 +71,19 @@ static Value *builtin_var(Env *env, Value *value, char *fun) {
   /* Assign copies of values to symbols. The operation might fail if the user
   tries to redefine a Lye builtin. */
   Value *maybe_error;
-  int index;
+  size_t index;
   for (index = 0; index < count(symbols); index++) {
-    Value *(*put_value)(Env *, Value *, Value *, int) =
+    Value *(*put_value)(Env *, Value *, Value *, bool) =
         strcmp(fun, "def") == 0 ? put_global_value : put_local_value;
     maybe_error = put_value(env, element_at(symbols, index),
-                            element_at(value, index + 1), 0);
+                            element_at(value, index + 1), false);
   }
 
-  return IS_ERROR(maybe_error) ? maybe_error : value->sexpr.cell[index];
+  if (IS_ERROR(maybe_error)) {
+    delete_value(value);
+    return maybe_error;
+  }
+  return value->data.sexpr.cell[index];
 }
 
 /*

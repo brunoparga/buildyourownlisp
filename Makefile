@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -Wextra -Wall -ggdb3 -std=c99 -fsanitize=address
+CFLAGS = -g -Wextra -Wall -Wpedantic -Wshadow -Wformat=2 -Wconversion -Wnull-dereference -Wsign-conversion -ggdb3 -std=c99 -fsanitize=address
 LDFLAGS = -ledit -lm
 COMPILE = $(CC) -c $(CFLAGS) $< -o $@
 

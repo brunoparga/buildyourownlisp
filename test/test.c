@@ -8,25 +8,27 @@
 
 #include <err.h>
 #include <fts.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "../utils/file.c"
 
-#define GREEN(text) "\e[1;32m" text "\e[0m"
-#define RED(text) "\e[1;31m" text "\e[0m"
+#define GREEN(text) "\033[1;32m" text "\033[0m"
+#define RED(text) "\033[1;31m" text "\033[0m"
 
-int successes = 0;
-int failures = 0;
+uint16_t successes = 0;
+uint16_t failures = 0;
 
-static inline int is_test(char *path) {
+static inline bool is_test(char *path) {
   char *extension = strrchr(path, '.');
   return !strcmp(extension, ".lye");
 }
 
 static void build_command(char *source, char *result) {
   char *lye = "./lye";
-  int command_length = strlen(lye) + strlen(source) + 7;
+  size_t command_length = strlen(lye) + strlen(source) + 7;
   char concat[command_length];
   memset(concat, 0, command_length);
   strcat(concat, lye);
@@ -56,7 +58,7 @@ static inline char *get_result(char *tmp_file) {
   return result;
 }
 
-static void run_test(char *line, int line_number, char *test_filename,
+static void run_test(char *line, uint16_t line_number, char *test_filename,
                      char *result_filename) {
   // Read the test from the test line
   size_t semicolon_position = strcspn(line, ";");
@@ -107,7 +109,7 @@ static void run_test_file(char *test_filename, char *result_filename) {
 
   char *line = NULL;
   size_t length = 0;
-  int line_number = 0;
+  uint16_t line_number = 0;
 
   while ((getline(&line, &length, test_file)) != -1) {
     line_number++;
@@ -129,8 +131,8 @@ int main(int argc, char **argv) {
   char *result_filename = "./test/test.tmp";
 
   if (argc > 1) {
-    for (int i = 1; i < argc; i++) {
-      run_test_file(argv[i], result_filename);
+    for (int index = 1; index < argc; index++) {
+      run_test_file(argv[index], result_filename);
     }
   } else {
     FTS *test_dir = open_dir("./test");
@@ -145,7 +147,7 @@ int main(int argc, char **argv) {
     fts_close(test_dir);
   }
 
-  int total = successes + failures;
+  uint16_t total = successes + failures;
   freopen("/dev/tty", "w", stdout);
   if (failures == 0) {
     printf("Ran " GREEN("%d") " tests, all passed. Hooray!\n", total);

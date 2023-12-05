@@ -34,7 +34,7 @@
  */
 #define ASSERT_ARGC(value, expected_argc, caller)                              \
   do {                                                                         \
-    int actual_argc = count(value);                                            \
+    size_t actual_argc = count(value);                                            \
     char *plural = expected_argc == 1 ? "" : "s";                              \
     ASSERT(value, actual_argc == expected_argc,                                \
            "function '%s' must be passed %d argument%s, but got %d instead.",  \
@@ -93,8 +93,8 @@
  */
 #define ASSERT_ALL_SYMBOLS(list, caller)                                       \
   do {                                                                         \
-    int length = count(list);                                                  \
-    for (int index = 0; index < length; index++) {                             \
+    size_t length = count(list);                                                  \
+    for (size_t index = 0; index < length; index++) {                          \
       ASSERT_IS_SYMBOL(list, element_at(list, index), #caller);                \
     }                                                                          \
   } while (0)

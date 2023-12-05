@@ -24,13 +24,13 @@
  * length, with the invariant that the length is equal for both.
  *
  */
-typedef struct Env {
+struct Env {
   Env *parent;
-  int count;
+  size_t count;
   Symbol *keys;
   Value **values;
-  int *is_builtin;
-} Env;
+  bool *is_builtin;
+};
 
 /* Environment constructors and destructor */
 Env *make_env();
@@ -39,8 +39,8 @@ void delete_env(Env *env);
 
 /* Store and retrieve */
 Value *get_value(Env *env, Value *key);
-Value *put_local_value(Env *env, Value *key, Value *value, int is_builtin);
-Value *put_global_value(Env *env, Value *key, Value *value, int is_builtin);
+Value *put_local_value(Env *env, Value *key, Value *value, bool is_builtin);
+Value *put_global_value(Env *env, Value *key, Value *value, bool is_builtin);
 
 /* Register language built-ins */
 void register_builtins(Env *env);
