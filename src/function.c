@@ -72,18 +72,16 @@ static Value *builtin_var(Env *env, Value *value, char *fun) {
   tries to redefine a Lye builtin. */
   Value *maybe_error;
   size_t index;
+  Value *(*put_value)(Env *, Value *, Value *, bool) =
+      strcmp(fun, "def") == 0 ? put_global_value : put_local_value;
+
   for (index = 0; index < count(symbols); index++) {
-    Value *(*put_value)(Env *, Value *, Value *, bool) =
-        strcmp(fun, "def") == 0 ? put_global_value : put_local_value;
     maybe_error = put_value(env, element_at(symbols, index),
                             element_at(value, index + 1), false);
   }
 
-  if (IS_ERROR(maybe_error)) {
-    delete_value(value);
-    return maybe_error;
-  }
-  return value->data.sexpr.cell[index];
+  delete_value(symbols);
+  return maybe_error;
 }
 
 /*

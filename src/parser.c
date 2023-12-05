@@ -103,7 +103,8 @@ Value *parse(Env *env, Parser *parser, char *input) {
 
   if (mpc_parse("<stdin>", input, parser->Lye, &result)) {
     /* On success return the result */
-    value = evaluate(env, expressionize(result.output));
+    value = expressionize(result.output);
+    value = evaluate(env, value);
     mpc_ast_delete(result.output);
   } else {
     /* Otherwise return the error */

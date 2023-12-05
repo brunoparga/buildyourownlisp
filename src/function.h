@@ -12,7 +12,7 @@
 
 /* Define the Function struct */
 struct Function {
-  /* These two are only by builtins */
+  /* These two are only used by builtins */
   Symbol name;
   Builtin builtin;
   /* These three are only used by user-defined functions */

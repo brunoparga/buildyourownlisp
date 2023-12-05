@@ -129,13 +129,14 @@ Value *put_local_value(Env *env, Value *key, Value *value, bool is_builtin) {
       if (env->is_builtin[index] || strcmp(key->data.symbol, "quit") == 0) {
         /* And it is not a builtin... */
         delete_value(value);
+        delete_value(value_copy);
         return make_error("cannot redefine builtin function %s.",
                           key->data.symbol);
       } else {
         /* Substitute the provided one */
         env->values[index] = value_copy;
         env->is_builtin[index] = is_builtin;
-        return value_copy;
+        return value;
       }
     }
   }
@@ -153,7 +154,7 @@ Value *put_local_value(Env *env, Value *key, Value *value, bool is_builtin) {
   env->is_builtin[env->count - 1] = is_builtin;
 
   /* Return the inserted Value */
-  return value_copy;
+  return value;
 }
 
 /*
