@@ -1,10 +1,10 @@
 #include "env.h"
 
-#define BUILTINS_COUNT 20
+#define BUILTINS_COUNT 21
 char builtin_names[BUILTINS_COUNT][10] = {
-    "def",  "\\",   "print-env", "list",    "eval", "head", "tail",
-    "join", "cons", "length",    "reverse", "init", "+",    "-",
-    "*",    "/",    "^",         "%",       "min",  "max"};
+    "def",  "=",    "\\",   "print-env", "list",    "eval", "head",
+    "tail", "join", "cons", "length",    "reverse", "init", "+",
+    "-",    "*",    "/",    "^",         "%",       "min",  "max"};
 
 // ===========================
 // Constructors and destructor
@@ -234,7 +234,7 @@ static void register_builtin(Env *env, Symbol name, Builtin builtin) {
 void register_builtins(Env *env) {
   Builtin builtin_functions[BUILTINS_COUNT] = {
       /* Environment and function operations */
-      builtin_def, builtin_lambda, builtin_print_env,
+      builtin_def, builtin_put, builtin_lambda, builtin_print_env,
 
       /* List operations */
       builtin_list, builtin_eval, builtin_head, builtin_tail, builtin_join,

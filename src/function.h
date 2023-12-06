@@ -23,6 +23,7 @@ struct Function {
 
 Value *call(Env *env, Value *fun, Value *args);
 Value *builtin_def(Env *env, Value *value);
+Value *builtin_put(Env *env, Value *value);
 Value *builtin_lambda(Env *env, Value *code);
 
 #endif

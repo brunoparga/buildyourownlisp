@@ -99,6 +99,18 @@ Value *builtin_def(Env *env, Value *value) {
 }
 
 /*
+ * src/function.c:builtin_put
+ * buildyourownlisp.com correspondence: builtin_put
+ *
+ * Syntax: (= {list of length n} a b c ... n)
+ * Put values in the local environment.
+ *
+ */
+Value *builtin_put(Env *env, Value *value) {
+  return builtin_var(env, value, "=");
+}
+
+/*
  * src/function.c:builtin_lambda
  * buildyourownlisp.com correspondence: builtin_lambda
  *
