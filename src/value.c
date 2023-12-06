@@ -418,7 +418,7 @@ Value *pop_value(Value *value, size_t index) {
   /* Find the value to pop */
   Value *popped = element_at(value, index);
 
-  /* Shift memory after the popped item over the top*/
+  /* Shift memory after the popped item */
   memmove(&value->data.sexpr.cell[index], &value->data.sexpr.cell[index + 1],
           sizeof(Value *) * (count(value) - index - 1));
 
@@ -431,7 +431,7 @@ Value *pop_value(Value *value, size_t index) {
   return popped;
 }
 
-// Since the most common index to pop is 0, this DRYes up the code
+// Since the most common index to pop is 0, this DRYs up the code
 inline Value *pop(Value *value) { return pop_value(value, 0); }
 
 /*

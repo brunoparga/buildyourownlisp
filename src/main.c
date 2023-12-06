@@ -16,9 +16,9 @@
  * Interpret code contained in a Lye source file.
  *
  */
-static void run_file(Env *env, Parser *parser, char *filename) {
+static void run_file(Env *env, char *filename) {
   char *source = read_file(filename);
-  run_string(env, parser, source);
+  run_string(env, source);
   free(source);
 }
 
@@ -34,21 +34,19 @@ static void run_file(Env *env, Parser *parser, char *filename) {
  *
  */
 int main(int argc, char **argv) {
-  Parser *parser = create_parser();
   Env *environment = make_env();
   register_builtins(environment);
 
   if (argc == 1) {
     puts("Lye Version 0.0.0.11");
     puts("Enter 'quit' to exit\n");
-    repl(environment, parser);
+    repl(environment);
   } else if (argc == 2) {
-    run_file(environment, parser, argv[1]);
+    run_file(environment, argv[1]);
   } else if (argc == 3 && strcmp(argv[1], "-s") == 0) {
-    run_string(environment, parser, argv[2]);
+    run_string(environment, argv[2]);
   }
 
-  cleanup_parser(parser);
   delete_env(environment);
 
   return 0;

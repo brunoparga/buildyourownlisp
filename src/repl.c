@@ -8,10 +8,12 @@
  * source code: a file, REPL entry or string passed as a command-line argument.
  *
  */
-void run_string(Env *env, Parser *parser, char *source) {
+void run_string(Env *env, char *source) {
+  Parser *parser = create_parser();
   Value *value = parse(env, parser, source);
   println_value(value);
   delete_value(value);
+  cleanup_parser(parser);
 }
 
 /*
@@ -22,7 +24,7 @@ void run_string(Env *env, Parser *parser, char *source) {
  * expressions within it and print the final value, then loop to the start.
  *
  */
-void repl(Env *env, Parser *parser) {
+void repl(Env *env) {
   for (;;) {
     char *input = readline("lye> ");
     if (strcmp(input, "quit") == 0) {
@@ -30,7 +32,7 @@ void repl(Env *env, Parser *parser) {
       return;
     }
     add_history(input);
-    run_string(env, parser, input);
+    run_string(env, input);
     free(input);
   }
 }
